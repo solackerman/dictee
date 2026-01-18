@@ -26,9 +26,6 @@
     body {
       margin: 0;
       background: linear-gradient(135deg, #f9fafb, #dbeafe);
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -42,6 +39,30 @@
       border-radius: 24px;
       box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
       padding: 32px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .image-panel {
+      background: var(--surface-alt);
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+      display: grid;
+      gap: 12px;
+    }
+
+    .image-panel img {
+      width: 100%;
+      border-radius: 16px;
+      object-fit: cover;
+      max-height: 420px;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
     }
 
     h1 {
@@ -187,6 +208,12 @@
       font-size: 1.4rem;
     }
 
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
     @media (max-width: 640px) {
       main {
         padding: 24px;
@@ -207,52 +234,62 @@
     <h1>French Dictee Practice</h1>
     <p>Enter a list of French words, then practice hearing and spelling them. Celebrate every win!</p>
 
-    <section class="panel" id="setup-panel">
-      <h2>1) Enter your words</h2>
-      <p>Type one word per line. You can paste a list too. The list is saved as <strong>dictee.txt</strong>.</p>
-      <textarea id="word-input" placeholder="bonjour\nfromage\nchocolat"></textarea>
-      <div class="row" style="margin-top: 12px;">
-        <button class="primary" id="start-button">Practice 🎧</button>
-        <span id="word-count" class="pill">0 words loaded</span>
-      </div>
-      <div class="row" style="margin-top: 12px;">
-        <button class="ghost" id="load-file">Load dictee.txt</button>
-        <button class="ghost" id="save-file">Save dictee.txt</button>
-        <button class="ghost" id="delete-file">Delete dictee list</button>
-      </div>
-      <p id="file-status"></p>
-    </section>
+    <div class="layout">
+      <div>
+        <section class="panel" id="setup-panel">
+          <h2>1) Enter your words</h2>
+          <p>Type one word per line. You can paste a list too. The list is saved as <strong>dictee.txt</strong>.</p>
+          <textarea id="word-input" placeholder="bonjour\nfromage\nchocolat"></textarea>
+          <div class="row" style="margin-top: 12px;">
+            <button class="primary" id="start-button">Practice 🎧</button>
+            <span id="word-count" class="pill">0 words loaded</span>
+          </div>
+          <div class="row" style="margin-top: 12px;">
+            <button class="ghost" id="load-file">Load dictee.txt</button>
+            <button class="ghost" id="save-file">Save dictee.txt</button>
+            <button class="ghost" id="delete-file">Delete dictee list</button>
+          </div>
+          <p id="file-status"></p>
+        </section>
 
-    <section class="panel hidden" id="practice-panel">
-      <h2>2) Practice</h2>
-      <div class="stack">
-        <div class="row">
-          <span class="pill" id="progress-pill">Word 1 of 1</span>
-          <span class="pill" id="score-pill">0 correct</span>
-        </div>
-        <div class="row">
-          <button class="secondary" id="speak-button">🔊 Sound out word</button>
-          <audio id="tts-audio"></audio>
-        </div>
-        <div class="row">
-          <input id="answer-input" class="input-field" type="text" placeholder="Type the word" autocomplete="off" />
-          <button class="primary" id="next-button">Check & Next ➜</button>
-        </div>
-        <div class="feedback" id="feedback"></div>
-      </div>
-    </section>
+        <section class="panel hidden" id="practice-panel">
+          <h2>2) Practice</h2>
+          <div class="stack">
+            <div class="row">
+              <span class="pill" id="progress-pill">Word 1 of 1</span>
+              <span class="pill" id="score-pill">0 correct</span>
+            </div>
+            <div class="row">
+              <button class="secondary" id="speak-button">🔊 Sound out word</button>
+              <audio id="tts-audio"></audio>
+            </div>
+            <div class="row">
+              <input id="answer-input" class="input-field" type="text" placeholder="Type the word" autocomplete="off" />
+              <button class="primary" id="next-button">Check & Next ➜</button>
+            </div>
+            <div class="feedback" id="feedback"></div>
+          </div>
+        </section>
 
-    <section class="panel hidden" id="results-panel">
-      <h2>3) Results</h2>
-      <p id="summary-text"></p>
-      <div class="celebration" id="celebration"></div>
-      <div class="sparkles" id="sparkles"></div>
-      <div class="results-grid" id="results-grid"></div>
-      <div class="row" style="margin-top: 16px;">
-        <button class="primary" id="retry-all">Retry all words</button>
-        <button class="ghost" id="retry-wrong">Retry incorrect only</button>
+        <section class="panel hidden" id="results-panel">
+          <h2>3) Results</h2>
+          <p id="summary-text"></p>
+          <div class="celebration" id="celebration"></div>
+          <div class="sparkles" id="sparkles"></div>
+          <div class="results-grid" id="results-grid"></div>
+          <div class="row" style="margin-top: 16px;">
+            <button class="primary" id="retry-all">Retry all words</button>
+            <button class="ghost" id="retry-wrong">Retry incorrect only</button>
+          </div>
+        </section>
       </div>
-    </section>
+
+      <aside class="image-panel">
+        <h2>Celebration Image</h2>
+        <img id="celebration-image" src="" alt="A celebratory image appears here." />
+        <p id="image-caption">Spell a word correctly to see a new photo!</p>
+      </aside>
+    </div>
   </main>
 
   <script>
@@ -279,6 +316,8 @@
     const saveFileButton = document.getElementById("save-file");
     const deleteFileButton = document.getElementById("delete-file");
     const fileStatus = document.getElementById("file-status");
+    const celebrationImage = document.getElementById("celebration-image");
+    const imageCaption = document.getElementById("image-caption");
 
     let words = [];
     let results = [];
@@ -473,17 +512,18 @@
         : `❌ Not quite. The correct spelling is “${currentWord}”.`;
       feedback.className = `feedback ${isCorrect ? "correct" : "incorrect"}`;
       if (isCorrect) {
-        updateBackgroundImage();
+        updateCelebrationImage();
       }
       answerInput.value = "";
       updateProgress();
     };
 
-    const updateBackgroundImage = () => {
+    const updateCelebrationImage = () => {
       if (!backgroundImages.length) return;
       const image = backgroundImages[backgroundIndex % backgroundImages.length];
       backgroundIndex += 1;
-      document.body.style.backgroundImage = `url('${image}'), linear-gradient(135deg, #f9fafb, #dbeafe)`;
+      celebrationImage.src = image;
+      imageCaption.textContent = "✨ Great spelling! Here's a new photo.";
     };
 
     const buildResults = () => {
@@ -690,6 +730,7 @@
 
     updateWordCount();
     loadDicteeWords(false);
+    updateCelebrationImage();
   </script>
 </body>
 </html>
