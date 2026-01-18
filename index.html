@@ -26,6 +26,9 @@
     body {
       margin: 0;
       background: linear-gradient(135deg, #f9fafb, #dbeafe);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -282,6 +285,15 @@
     let currentIndex = 0;
     const dicteeFilename = "dictee.txt";
     const supportsFileAccess = "showDirectoryPicker" in window;
+    const backgroundImages = [
+      "images/katseye-1.jpg",
+      "images/katseye-2.jpg",
+      "images/katseye-3.jpg",
+      "images/corgi-1.jpg",
+      "images/corgi-2.jpg",
+      "images/corgi-3.jpg",
+    ];
+    let backgroundIndex = 0;
 
     const normalize = (value) =>
       value
@@ -460,8 +472,18 @@
         ? `✅ Bravo! “${currentWord}” is correct.`
         : `❌ Not quite. The correct spelling is “${currentWord}”.`;
       feedback.className = `feedback ${isCorrect ? "correct" : "incorrect"}`;
+      if (isCorrect) {
+        updateBackgroundImage();
+      }
       answerInput.value = "";
       updateProgress();
+    };
+
+    const updateBackgroundImage = () => {
+      if (!backgroundImages.length) return;
+      const image = backgroundImages[backgroundIndex % backgroundImages.length];
+      backgroundIndex += 1;
+      document.body.style.backgroundImage = `url('${image}'), linear-gradient(135deg, #f9fafb, #dbeafe)`;
     };
 
     const buildResults = () => {
