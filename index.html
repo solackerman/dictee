@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>French Dictee Practice</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      --primary: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --secondary: #f97316;
+      --success: #16a34a;
+      --warning: #facc15;
+      --surface: #ffffff;
+      --surface-alt: #f3f4f6;
+      --text: #111827;
+      --muted: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #f9fafb, #dbeafe);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px 48px;
+    }
+
+    main {
+      width: min(960px, 100%);
+      background: var(--surface);
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+      padding: 32px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 2.8rem);
+    }
+
+    p {
+      margin: 0 0 16px;
+      color: var(--muted);
+    }
+
+    .panel {
+      background: var(--surface-alt);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid #d1d5db;
+      font-size: 1rem;
+      resize: vertical;
+    }
+
+    button {
+      border: none;
+      padding: 12px 20px;
+      border-radius: 999px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.15);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .secondary {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .ghost {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .success {
+      background: var(--success);
+      color: white;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .pill {
+      background: #eff6ff;
+      color: var(--primary-dark);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .input-field {
+      width: min(320px, 100%);
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      font-size: 1.05rem;
+    }
+
+    .feedback {
+      font-weight: 600;
+    }
+
+    .feedback.correct {
+      color: var(--success);
+    }
+
+    .feedback.incorrect {
+      color: #dc2626;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .results-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .result-card {
+      background: white;
+      border-radius: 14px;
+      padding: 12px 14px;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-card span {
+      font-weight: 600;
+    }
+
+    .celebration {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .sparkles {
+      display: inline-flex;
+      gap: 8px;
+      font-size: 1.4rem;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        padding: 24px;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .row {
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>French Dictee Practice</h1>
+    <p>Enter a list of French words, then practice hearing and spelling them. Celebrate every win!</p>
+
+    <section class="panel" id="setup-panel">
+      <h2>1) Enter your words</h2>
+      <p>Type one word per line. You can paste a list too.</p>
+      <textarea id="word-input" placeholder="bonjour\nfromage\nchocolat"></textarea>
+      <div class="row" style="margin-top: 12px;">
+        <button class="primary" id="start-button">Practice 🎧</button>
+        <span id="word-count" class="pill">0 words loaded</span>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="practice-panel">
+      <h2>2) Practice</h2>
+      <div class="stack">
+        <div class="row">
+          <span class="pill" id="progress-pill">Word 1 of 1</span>
+          <span class="pill" id="score-pill">0 correct</span>
+        </div>
+        <div class="row">
+          <button class="secondary" id="speak-button">🔊 Sound out word</button>
+          <audio id="tts-audio"></audio>
+        </div>
+        <div class="row">
+          <input id="answer-input" class="input-field" type="text" placeholder="Type the word" autocomplete="off" />
+          <button class="primary" id="next-button">Check & Next ➜</button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="results-panel">
+      <h2>3) Results</h2>
+      <p id="summary-text"></p>
+      <div class="celebration" id="celebration"></div>
+      <div class="sparkles" id="sparkles"></div>
+      <div class="results-grid" id="results-grid"></div>
+      <div class="row" style="margin-top: 16px;">
+        <button class="primary" id="retry-all">Retry all words</button>
+        <button class="ghost" id="retry-wrong">Retry incorrect only</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const wordInput = document.getElementById("word-input");
+    const startButton = document.getElementById("start-button");
+    const wordCount = document.getElementById("word-count");
+    const setupPanel = document.getElementById("setup-panel");
+    const practicePanel = document.getElementById("practice-panel");
+    const resultsPanel = document.getElementById("results-panel");
+    const speakButton = document.getElementById("speak-button");
+    const ttsAudio = document.getElementById("tts-audio");
+    const answerInput = document.getElementById("answer-input");
+    const nextButton = document.getElementById("next-button");
+    const feedback = document.getElementById("feedback");
+    const progressPill = document.getElementById("progress-pill");
+    const scorePill = document.getElementById("score-pill");
+    const summaryText = document.getElementById("summary-text");
+    const celebration = document.getElementById("celebration");
+    const sparkles = document.getElementById("sparkles");
+    const resultsGrid = document.getElementById("results-grid");
+    const retryAll = document.getElementById("retry-all");
+    const retryWrong = document.getElementById("retry-wrong");
+
+    let words = [];
+    let results = [];
+    let currentIndex = 0;
+
+    const normalize = (value) =>
+      value
+        .trim()
+        .toLowerCase()
+        .normalize("NFC");
+
+    const updateWordCount = () => {
+      const list = parseWords();
+      wordCount.textContent = `${list.length} word${list.length !== 1 ? "s" : ""} loaded`;
+    };
+
+    const parseWords = () => {
+      return wordInput.value
+        .split(/\n|,/)
+        .map((word) => word.trim())
+        .filter((word) => word.length > 0);
+    };
+
+    const speakWord = (word) => {
+      if (!word) return;
+      const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=fr&q=${encodeURIComponent(
+        word
+      )}`;
+      ttsAudio.src = url;
+      ttsAudio.play();
+    };
+
+    const showPractice = () => {
+      setupPanel.classList.add("hidden");
+      resultsPanel.classList.add("hidden");
+      practicePanel.classList.remove("hidden");
+    };
+
+    const showResults = () => {
+      practicePanel.classList.add("hidden");
+      resultsPanel.classList.remove("hidden");
+    };
+
+    const resetPractice = (wordList) => {
+      words = [...wordList];
+      results = [];
+      currentIndex = 0;
+      feedback.textContent = "";
+      answerInput.value = "";
+      updateProgress();
+      showPractice();
+    };
+
+    const updateProgress = () => {
+      progressPill.textContent = `Word ${currentIndex + 1} of ${words.length}`;
+      const correct = results.filter((item) => item.correct).length;
+      scorePill.textContent = `${correct} correct`;
+    };
+
+    const recordAnswer = () => {
+      const currentWord = words[currentIndex];
+      const answer = answerInput.value;
+      const isCorrect = normalize(answer) === normalize(currentWord);
+      results.push({ word: currentWord, answer, correct: isCorrect });
+      feedback.textContent = isCorrect
+        ? `✅ Bravo! “${currentWord}” is correct.`
+        : `❌ Not quite. The correct spelling is “${currentWord}”.`;
+      feedback.className = `feedback ${isCorrect ? "correct" : "incorrect"}`;
+      answerInput.value = "";
+      updateProgress();
+    };
+
+    const buildResults = () => {
+      resultsGrid.innerHTML = "";
+      const correctCount = results.filter((item) => item.correct).length;
+      const percent = Math.round((correctCount / results.length) * 100);
+      summaryText.textContent = `You got ${correctCount} out of ${results.length} correct (${percent}%).`;
+
+      if (percent === 100) {
+        celebration.textContent = "Magnifique! Perfect score!";
+        sparkles.textContent = "🎉✨🥳";
+      } else if (percent >= 75) {
+        celebration.textContent = "Super travail! Nearly there.";
+        sparkles.textContent = "🎊⭐🌟";
+      } else if (percent >= 50) {
+        celebration.textContent = "Bien joué! Keep practicing.";
+        sparkles.textContent = "👏💪";
+      } else {
+        celebration.textContent = "Every try makes you better. Let's go again!";
+        sparkles.textContent = "💖📚";
+      }
+
+      results.forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "result-card";
+        card.innerHTML = `
+          <div>
+            <span>${item.word}</span>
+            <div class="muted">You wrote: ${item.answer || "—"}</div>
+          </div>
+          <div>${item.correct ? "✅" : "❌"}</div>
+        `;
+        resultsGrid.appendChild(card);
+      });
+    };
+
+    const finishPractice = () => {
+      buildResults();
+      showResults();
+    };
+
+    startButton.addEventListener("click", () => {
+      const list = parseWords();
+      if (list.length === 0) {
+        wordCount.textContent = "Please add at least 1 word";
+        wordCount.style.background = "#fee2e2";
+        wordCount.style.color = "#991b1b";
+        return;
+      }
+      wordCount.style.background = "#eff6ff";
+      wordCount.style.color = "";
+      resetPractice(list);
+      speakWord(words[currentIndex]);
+    });
+
+    wordInput.addEventListener("input", updateWordCount);
+
+    speakButton.addEventListener("click", () => {
+      speakWord(words[currentIndex]);
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (!words.length) return;
+      if (!answerInput.value.trim()) {
+        feedback.textContent = "Type your best guess before moving on.";
+        feedback.className = "feedback incorrect";
+        return;
+      }
+      recordAnswer();
+      currentIndex += 1;
+
+      if (currentIndex >= words.length) {
+        finishPractice();
+        return;
+      }
+      updateProgress();
+      speakWord(words[currentIndex]);
+    });
+
+    answerInput.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        nextButton.click();
+      }
+    });
+
+    retryAll.addEventListener("click", () => {
+      resetPractice(words);
+      speakWord(words[currentIndex]);
+    });
+
+    retryWrong.addEventListener("click", () => {
+      const incorrect = results.filter((item) => !item.correct).map((item) => item.word);
+      if (incorrect.length === 0) {
+        celebration.textContent = "Nothing to retry! You nailed them all!";
+        sparkles.textContent = "🏆🎉";
+        return;
+      }
+      resetPractice(incorrect);
+      speakWord(words[currentIndex]);
+    });
+
+    updateWordCount();
+  </script>
+</body>
+</html>
