@@ -9,4 +9,4 @@ The app will store your word list in `dictee.txt` (via your browser’s file pic
 
 ## Background images on correct answers
 
-When a word is spelled correctly, the app cycles the page background through images in the `images/` folder. Add your own image files there and update the list in `index.html` (search for `backgroundImages`) to match the filenames.
+When a word is spelled correctly, the app cycles the page background through a list of image URLs (search for `backgroundImages` in `index.html`). Replace those links with your preferred “katseye” or “cute corgi” images.
