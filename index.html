@@ -594,17 +594,18 @@
         : `❌ Not quite. The correct spelling is “${currentWord}”.`;
       feedback.className = `feedback ${isCorrect ? "correct" : "incorrect"}`;
       if (isCorrect) {
-        updateCelebrationImage();
-        triggerCelebrationEffects();
+        const nextImage = getNextImage();
+        triggerCelebrationEffects(nextImage);
       }
       answerInput.value = "";
       updateProgress();
     };
 
-    const triggerCelebrationEffects = () => {
+    const triggerCelebrationEffects = (nextImage) => {
       triggerConfetti();
+      showPlaceholderImage();
       setTimeout(() => {
-        triggerImageSparkles();
+        triggerImageSparkles(nextImage);
       }, 1000);
     };
 
@@ -638,7 +639,7 @@
       }, 1000);
     };
 
-    const triggerImageSparkles = () => {
+    const triggerImageSparkles = (nextImage) => {
       imageSparkles.innerHTML = "";
       const sparkleIcons = ["✨", "🌟", "💫"];
       const sparkleCount = 18;
@@ -656,16 +657,40 @@
       }
 
       setTimeout(() => {
+        setCelebrationImage(nextImage, "✨ Great spelling! Here's a new photo.");
+      }, 500);
+
+      setTimeout(() => {
         imageSparkles.innerHTML = "";
       }, 1000);
     };
 
-    const updateCelebrationImage = () => {
+    const getNextImage = () => {
       if (!backgroundImages.length) return;
       const image = backgroundImages[backgroundIndex % backgroundImages.length];
       backgroundIndex += 1;
+      return image;
+    };
+
+    const setCelebrationImage = (image, caption) => {
+      if (!image) return;
       celebrationImage.src = image;
-      imageCaption.textContent = "✨ Great spelling! Here's a new photo.";
+      imageCaption.textContent = caption;
+    };
+
+    const showPlaceholderImage = () => {
+      const placeholder = `data:image/svg+xml;utf8,${encodeURIComponent(
+        `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'>` +
+          `<defs><linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>` +
+          `<stop stop-color='#f9fafb' offset='0'/>` +
+          `<stop stop-color='#dbeafe' offset='1'/>` +
+          `</linearGradient></defs>` +
+          `<rect width='800' height='600' rx='48' fill='url(#g)'/>` +
+          `<text x='50%' y='50%' text-anchor='middle' dominant-baseline='middle'` +
+          ` font-size='180' font-family='Segoe UI, sans-serif' fill='#1d4ed8'>?</text>` +
+          `</svg>`
+      )}`;
+      setCelebrationImage(placeholder, "✨ Revealing your surprise...");
     };
 
     const buildResults = () => {
@@ -872,7 +897,7 @@
 
     updateWordCount();
     loadDicteeWords(false);
-    updateCelebrationImage();
+    setCelebrationImage(getNextImage(), "Spell a word correctly to see a new photo!");
   </script>
 </body>
 </html>
