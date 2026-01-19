@@ -55,6 +55,8 @@
       text-align: center;
       display: grid;
       gap: 12px;
+      position: relative;
+      overflow: hidden;
     }
 
     .image-panel img {
@@ -208,6 +210,66 @@
       font-size: 1.4rem;
     }
 
+    .confetti-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 9999;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 12px;
+      height: 18px;
+      opacity: 0;
+      border-radius: 4px;
+      animation: confetti-burst 1s ease-out forwards;
+    }
+
+    @keyframes confetti-burst {
+      0% {
+        opacity: 0;
+        transform: translate3d(0, 0, 0) rotate(0deg) scale(0.8);
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate3d(var(--x-end), var(--y-end), 0) rotate(360deg) scale(1);
+      }
+    }
+
+    .image-sparkles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .sparkle {
+      position: absolute;
+      font-size: 1.4rem;
+      opacity: 0;
+      animation: sparkle-pop 1s ease-out forwards;
+      filter: drop-shadow(0 4px 6px rgba(15, 23, 42, 0.25));
+    }
+
+    @keyframes sparkle-pop {
+      0% {
+        opacity: 0;
+        transform: scale(0.4) rotate(0deg);
+      }
+      30% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.1) rotate(20deg);
+      }
+    }
+
     @media (max-width: 900px) {
       .layout {
         grid-template-columns: 1fr;
@@ -230,6 +292,7 @@
   </style>
 </head>
 <body>
+  <div class="confetti-container" id="confetti-container" aria-hidden="true"></div>
   <main>
     <h1>French Dictee Practice</h1>
     <p>Enter a list of French words, then practice hearing and spelling them. Celebrate every win!</p>
@@ -287,6 +350,7 @@
       <aside class="image-panel">
         <h2>Celebration Image</h2>
         <img id="celebration-image" src="" alt="A celebratory image appears here." />
+        <div class="image-sparkles" id="image-sparkles" aria-hidden="true"></div>
         <p id="image-caption">Spell a word correctly to see a new photo!</p>
       </aside>
     </div>
@@ -318,6 +382,8 @@
     const fileStatus = document.getElementById("file-status");
     const celebrationImage = document.getElementById("celebration-image");
     const imageCaption = document.getElementById("image-caption");
+    const confettiContainer = document.getElementById("confetti-container");
+    const imageSparkles = document.getElementById("image-sparkles");
 
     let words = [];
     let results = [];
@@ -529,9 +595,69 @@
       feedback.className = `feedback ${isCorrect ? "correct" : "incorrect"}`;
       if (isCorrect) {
         updateCelebrationImage();
+        triggerCelebrationEffects();
       }
       answerInput.value = "";
       updateProgress();
+    };
+
+    const triggerCelebrationEffects = () => {
+      triggerConfetti();
+      setTimeout(() => {
+        triggerImageSparkles();
+      }, 1000);
+    };
+
+    const triggerConfetti = () => {
+      confettiContainer.innerHTML = "";
+      const colors = ["#f97316", "#facc15", "#22c55e", "#38bdf8", "#a855f7", "#f43f5e"];
+      const pieces = 120;
+
+      for (let i = 0; i < pieces; i += 1) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        const startX = Math.random() * window.innerWidth;
+        const startY = Math.random() * window.innerHeight * 0.2;
+        const endX = (Math.random() - 0.5) * window.innerWidth * 0.9;
+        const endY = window.innerHeight * (0.4 + Math.random() * 0.8);
+
+        piece.style.left = `${startX}px`;
+        piece.style.top = `${startY}px`;
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        piece.style.setProperty("--x-end", `${endX}px`);
+        piece.style.setProperty("--y-end", `${endY}px`);
+        piece.style.animationDelay = `${Math.random() * 0.2}s`;
+        piece.style.width = `${8 + Math.random() * 10}px`;
+        piece.style.height = `${12 + Math.random() * 14}px`;
+        confettiContainer.appendChild(piece);
+      }
+
+      setTimeout(() => {
+        confettiContainer.innerHTML = "";
+      }, 1000);
+    };
+
+    const triggerImageSparkles = () => {
+      imageSparkles.innerHTML = "";
+      const sparkleIcons = ["✨", "🌟", "💫"];
+      const sparkleCount = 18;
+
+      for (let i = 0; i < sparkleCount; i += 1) {
+        const sparkle = document.createElement("span");
+        sparkle.className = "sparkle";
+        sparkle.textContent = sparkleIcons[Math.floor(Math.random() * sparkleIcons.length)];
+        const x = -10 + Math.random() * 120;
+        const y = -10 + Math.random() * 120;
+        sparkle.style.left = `${x}%`;
+        sparkle.style.top = `${y}%`;
+        sparkle.style.animationDelay = `${Math.random() * 0.2}s`;
+        imageSparkles.appendChild(sparkle);
+      }
+
+      setTimeout(() => {
+        imageSparkles.innerHTML = "";
+      }, 1000);
     };
 
     const updateCelebrationImage = () => {
