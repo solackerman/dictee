@@ -92,6 +92,7 @@
       border: 1px solid #d1d5db;
       font-size: 1rem;
       resize: vertical;
+      background: #ffffff;
     }
 
     button {
@@ -210,6 +211,34 @@
       font-size: 1.4rem;
     }
 
+    .dictee-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .dictee-button {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+      width: 100%;
+    }
+
+    .dictee-button span {
+      display: block;
+      font-weight: 700;
+    }
+
+    .dictee-button small {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
     .confetti-container {
       position: fixed;
       inset: 0;
@@ -295,30 +324,30 @@
   <div class="confetti-container" id="confetti-container" aria-hidden="true"></div>
   <main>
     <h1>French Dictee Practice</h1>
-    <p>Enter a list of French words, then practice hearing and spelling them. Celebrate every win!</p>
+    <p>Pick a dictee from your folder structure and jump right into practice.</p>
 
     <div class="layout">
       <div>
         <section class="panel" id="setup-panel">
-          <h2>1) Enter your words</h2>
-          <p>Type one word per line. You can paste a list too. The list is saved as <strong>dictee.txt</strong>.</p>
-          <textarea id="word-input" placeholder="bonjour\nfromage\nchocolat"></textarea>
-          <div class="row" style="margin-top: 12px;">
-            <button class="primary" id="start-button">Practice 🎧</button>
-            <span id="word-count" class="pill">0 words loaded</span>
+          <h2>1) Choose a dictee</h2>
+          <p>
+            Organize dictees by grade and number (for example <strong>3/10/dictee.txt</strong>).
+            Select the root folder to see every available dictee.
+          </p>
+          <div class="row">
+            <button class="primary" id="choose-folder">Choose dictee folder</button>
+            <span id="dictee-count" class="pill">0 dictees found</span>
           </div>
-          <div class="row" style="margin-top: 12px;">
-            <button class="ghost" id="load-file">Load dictee.txt</button>
-            <button class="ghost" id="save-file">Save dictee.txt</button>
-            <button class="ghost" id="delete-file">Delete dictee list</button>
-          </div>
-          <p id="file-status"></p>
+          <div class="dictee-list" id="dictee-list"></div>
+          <p id="dictee-status"></p>
+          <textarea id="dictee-preview" placeholder="Select a dictee to preview the words." readonly></textarea>
         </section>
 
         <section class="panel hidden" id="practice-panel">
           <h2>2) Practice</h2>
           <div class="stack">
             <div class="row">
+              <span class="pill" id="dictee-pill">Dictee</span>
               <span class="pill" id="progress-pill">Word 1 of 1</span>
               <span class="pill" id="score-pill">0 correct</span>
             </div>
@@ -343,6 +372,7 @@
           <div class="row" style="margin-top: 16px;">
             <button class="primary" id="retry-all">Retry all words</button>
             <button class="ghost" id="retry-wrong">Retry incorrect only</button>
+            <button class="ghost" id="choose-another">Choose another dictee</button>
           </div>
         </section>
       </div>
@@ -357,9 +387,6 @@
   </main>
 
   <script>
-    const wordInput = document.getElementById("word-input");
-    const startButton = document.getElementById("start-button");
-    const wordCount = document.getElementById("word-count");
     const setupPanel = document.getElementById("setup-panel");
     const practicePanel = document.getElementById("practice-panel");
     const resultsPanel = document.getElementById("results-panel");
@@ -370,16 +397,19 @@
     const feedback = document.getElementById("feedback");
     const progressPill = document.getElementById("progress-pill");
     const scorePill = document.getElementById("score-pill");
+    const dicteePill = document.getElementById("dictee-pill");
     const summaryText = document.getElementById("summary-text");
     const celebration = document.getElementById("celebration");
     const sparkles = document.getElementById("sparkles");
     const resultsGrid = document.getElementById("results-grid");
     const retryAll = document.getElementById("retry-all");
     const retryWrong = document.getElementById("retry-wrong");
-    const loadFileButton = document.getElementById("load-file");
-    const saveFileButton = document.getElementById("save-file");
-    const deleteFileButton = document.getElementById("delete-file");
-    const fileStatus = document.getElementById("file-status");
+    const chooseAnother = document.getElementById("choose-another");
+    const chooseFolderButton = document.getElementById("choose-folder");
+    const dicteeList = document.getElementById("dictee-list");
+    const dicteeStatus = document.getElementById("dictee-status");
+    const dicteeCount = document.getElementById("dictee-count");
+    const dicteePreview = document.getElementById("dictee-preview");
     const celebrationImage = document.getElementById("celebration-image");
     const imageCaption = document.getElementById("image-caption");
     const confettiContainer = document.getElementById("confetti-container");
@@ -388,31 +418,32 @@
     let words = [];
     let results = [];
     let currentIndex = 0;
+    let dicteeEntries = [];
     const dicteeFilename = "dictee.txt";
     const supportsFileAccess = "showDirectoryPicker" in window;
     const backgroundImages = [
       "https://mymodernmet.com/wp/wp-content/uploads/2020/10/cooper-baby-corgi-dogs-8.jpg",
-     "https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/9dcfc9b6-5349-52e7-a643-d2af65b338ab/0af98422-8d5d-5204-9f00-361f34eddb23.jpg",
+      "https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/9dcfc9b6-5349-52e7-a643-d2af65b338ab/0af98422-8d5d-5204-9f00-361f34eddb23.jpg",
       "https://www.rd.com/wp-content/uploads/2021/01/GettyImages-532620145.jpg",
-"https://www.rd.com/wp-content/uploads/2021/01/GettyImages-512536165.jpg",
-"https://images2.minutemediacdn.com/image/upload/c_fill,w_1200,ar_16:9,f_auto,q_auto,g_auto/images/voltaxMediaLibrary/mmsport/mentalfloss/01gwscsvw2yrt73s9sqj.jpg",
-"https://pethelpful.com/.image/c_fill,g_xy_center,x_444,y_384/NDowMDAwMDAwMDAwMTA5OTM4/a-corgi-puppy-running.jpg",
-"https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/4099eb06-88c5-5d6f-8c45-1df9acd3c011/6631f93b-22b4-5f7b-8702-ec9c59859b68.jpg",
-"https://www.ctvnews.ca/resizer/v2/LSDRHWL5VZHGXLDY6E5ZLGPV5U.jpg?smart=true&auth=f0bb5e86a41411dc746b0b920e81bcb36fb277b6e07c10705a24a41c1604725a&width=4032&height=2268",
-"https://wallpapertag.com/wallpaper/full/5/7/f/628070-corgi-puppy-wallpapers-2048x2048-for-ipad-pro.jpg",
-"https://wallpapers.com/images/hd/cute-corgi-pictures-vl3abpoz6flp2a5k.jpg",
-"https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/ac8c0ac5-1a1c-5200-804d-de6b7efb11ac/77396ab4-8524-56e0-af33-394ea0104c3a.jpg",
-"https://images5.alphacoders.com/335/thumb-1920-335664.jpg",
-"https://axolotlplanet.com/cdn/shop/files/IMG-2268.jpg?v=1741839203&width=2048",
-"https://i.pinimg.com/originals/c0/63/eb/c063eb762c11cc0df33e0a3dec1cbdda.jpg",
-"https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6e0208374696edddc181e63a14643ef3ad2803286f3afbb322043e1ca4e3d925bc1ca4bec31df8ebfb9ab7d7ffdf309cb49fbe8c018887ad3ae2367d19175e870d",
-"https://wallpapers.com/images/hd/cute-corgi-pictures-vefpn1a3vxyfpq4r.jpg",
-"https://www.katseye.world/wp-content/uploads/sites/2863/2024/06/06.09.katseye_slide2-1000-compressed.jpg",
-"https://images.unsplash.com/photo-1558788353-f76d92427f16",
-"https://usa.inquirer.net/files/2025/09/AP25248038197216-scaled.jpg",
-"https://images.unsplash.com/photo-1517849845537-4d257902454a",
-"https://imgix.bustle.com/uploads/image/2025/6/30/813808ee/katseye_generalpress_02.jpg?w=390&h=546&fit=crop&crop=faces&dpr=2",
-"https://elle.com.sg/wp-content/uploads/2024/09/KATSEYE_Thrift1069_ElleSingapore-1-1-1.jpg",
+      "https://www.rd.com/wp-content/uploads/2021/01/GettyImages-512536165.jpg",
+      "https://images2.minutemediacdn.com/image/upload/c_fill,w_1200,ar_16:9,f_auto,q_auto,g_auto/images/voltaxMediaLibrary/mmsport/mentalfloss/01gwscsvw2yrt73s9sqj.jpg",
+      "https://pethelpful.com/.image/c_fill,g_xy_center,x_444,y_384/NDowMDAwMDAwMDAwMTA5OTM4/a-corgi-puppy-running.jpg",
+      "https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/4099eb06-88c5-5d6f-8c45-1df9acd3c011/6631f93b-22b4-5f7b-8702-ec9c59859b68.jpg",
+      "https://www.ctvnews.ca/resizer/v2/LSDRHWL5VZHGXLDY6E5ZLGPV5U.jpg?smart=true&auth=f0bb5e86a41411dc746b0b920e81bcb36fb277b6e07c10705a24a41c1604725a&width=4032&height=2268",
+      "https://wallpapertag.com/wallpaper/full/5/7/f/628070-corgi-puppy-wallpapers-2048x2048-for-ipad-pro.jpg",
+      "https://wallpapers.com/images/hd/cute-corgi-pictures-vl3abpoz6flp2a5k.jpg",
+      "https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/ac8c0ac5-1a1c-5200-804d-de6b7efb11ac/77396ab4-8524-56e0-af33-394ea0104c3a.jpg",
+      "https://images5.alphacoders.com/335/thumb-1920-335664.jpg",
+      "https://axolotlplanet.com/cdn/shop/files/IMG-2268.jpg?v=1741839203&width=2048",
+      "https://i.pinimg.com/originals/c0/63/eb/c063eb762c11cc0df33e0a3dec1cbdda.jpg",
+      "https://st.perplexity.ai/estatic/0b226c450798410ac541646c86ec31afd840e5beab817a5d84fa821e7db61981ec84c3b4a3f072a7a2e1899c9fb06c6e0208374696edddc181e63a14643ef3ad2803286f3afbb322043e1ca4e3d925bc1ca4bec31df8ebfb9ab7d7ffdf309cb49fbe8c018887ad3ae2367d19175e870d",
+      "https://wallpapers.com/images/hd/cute-corgi-pictures-vefpn1a3vxyfpq4r.jpg",
+      "https://www.katseye.world/wp-content/uploads/sites/2863/2024/06/06.09.katseye_slide2-1000-compressed.jpg",
+      "https://images.unsplash.com/photo-1558788353-f76d92427f16",
+      "https://usa.inquirer.net/files/2025/09/AP25248038197216-scaled.jpg",
+      "https://images.unsplash.com/photo-1517849845537-4d257902454a",
+      "https://imgix.bustle.com/uploads/image/2025/6/30/813808ee/katseye_generalpress_02.jpg?w=390&h=546&fit=crop&crop=faces&dpr=2",
+      "https://elle.com.sg/wp-content/uploads/2024/09/KATSEYE_Thrift1069_ElleSingapore-1-1-1.jpg",
     ];
     let backgroundIndex = 0;
 
@@ -422,26 +453,21 @@
         .toLowerCase()
         .normalize("NFC");
 
-    const updateWordCount = () => {
-      const list = parseWords();
-      wordCount.textContent = `${list.length} word${list.length !== 1 ? "s" : ""} loaded`;
-    };
-
-    const parseWords = () => {
-      return wordInput.value
+    const parseWords = (text) => {
+      return text
         .split(/\n|,/)
         .map((word) => word.trim())
         .filter((word) => word.length > 0);
     };
 
-    const setFileStatus = (message, isError = false) => {
-      fileStatus.textContent = message;
-      fileStatus.style.color = isError ? "#b91c1c" : "";
+    const setDicteeStatus = (message, isError = false) => {
+      dicteeStatus.textContent = message;
+      dicteeStatus.style.color = isError ? "#b91c1c" : "";
     };
 
     const openDb = () =>
       new Promise((resolve, reject) => {
-        const request = indexedDB.open("dictee-store", 1);
+        const request = indexedDB.open("dictee-library", 1);
         request.onupgradeneeded = () => {
           const db = request.result;
           if (!db.objectStoreNames.contains("handles")) {
@@ -457,7 +483,7 @@
       return new Promise((resolve, reject) => {
         const tx = db.transaction("handles", "readonly");
         const store = tx.objectStore("handles");
-        const request = store.get("directory");
+        const request = store.get("dictee-root");
         request.onsuccess = () => resolve(request.result || null);
         request.onerror = () => reject(request.error);
       });
@@ -468,18 +494,7 @@
       return new Promise((resolve, reject) => {
         const tx = db.transaction("handles", "readwrite");
         const store = tx.objectStore("handles");
-        store.put(handle, "directory");
-        tx.oncomplete = () => resolve(true);
-        tx.onerror = () => reject(tx.error);
-      });
-    };
-
-    const clearStoredDirectoryHandle = async () => {
-      const db = await openDb();
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction("handles", "readwrite");
-        const store = tx.objectStore("handles");
-        store.delete("directory");
+        store.put(handle, "dictee-root");
         tx.oncomplete = () => resolve(true);
         tx.onerror = () => reject(tx.error);
       });
@@ -491,12 +506,12 @@
       }
       let handle = await getStoredDirectoryHandle();
       if (handle) {
-        const permission = await handle.queryPermission({ mode: "readwrite" });
+        const permission = await handle.queryPermission({ mode: "read" });
         if (permission === "granted") {
           return handle;
         }
         if (permission === "prompt") {
-          const request = await handle.requestPermission({ mode: "readwrite" });
+          const request = await handle.requestPermission({ mode: "read" });
           if (request === "granted") {
             return handle;
           }
@@ -507,45 +522,78 @@
       return handle;
     };
 
-    const populateWords = (text) => {
-      wordInput.value = text.trim();
-      updateWordCount();
-    };
-
-    const loadFromDirectory = async (handle) => {
-      try {
-        const fileHandle = await handle.getFileHandle(dicteeFilename);
-        const file = await fileHandle.getFile();
-        return await file.text();
-      } catch (error) {
-        if (error.name === "NotFoundError") {
-          return null;
+    const listDictees = async (rootHandle) => {
+      const entries = [];
+      for await (const [gradeName, gradeEntry] of rootHandle.entries()) {
+        if (gradeEntry.kind !== "directory") continue;
+        for await (const [numberName, numberEntry] of gradeEntry.entries()) {
+          if (numberEntry.kind !== "directory") continue;
+          try {
+            const fileHandle = await numberEntry.getFileHandle(dicteeFilename);
+            entries.push({ grade: gradeName, number: numberName, fileHandle });
+          } catch (error) {
+            if (error.name !== "NotFoundError") {
+              console.warn(`Unable to read ${gradeName}/${numberName}:`, error);
+            }
+          }
         }
-        throw error;
       }
+      return entries;
     };
 
-    const saveToDirectory = async (handle, text) => {
-      const fileHandle = await handle.getFileHandle(dicteeFilename, { create: true });
-      const writable = await fileHandle.createWritable();
-      await writable.write(text);
-      await writable.close();
+    const compareDictee = (a, b) => {
+      const gradeA = Number.parseInt(a.grade, 10);
+      const gradeB = Number.parseInt(b.grade, 10);
+      if (!Number.isNaN(gradeA) && !Number.isNaN(gradeB) && gradeA !== gradeB) {
+        return gradeA - gradeB;
+      }
+      if (a.grade !== b.grade) {
+        return a.grade.localeCompare(b.grade, undefined, { numeric: true });
+      }
+      const numberA = Number.parseInt(a.number, 10);
+      const numberB = Number.parseInt(b.number, 10);
+      if (!Number.isNaN(numberA) && !Number.isNaN(numberB) && numberA !== numberB) {
+        return numberA - numberB;
+      }
+      return a.number.localeCompare(b.number, undefined, { numeric: true });
     };
 
-    const deleteFromDirectory = async (handle) => {
-      await handle.removeEntry(dicteeFilename);
+    const renderDicteeList = () => {
+      dicteeList.innerHTML = "";
+      if (!dicteeEntries.length) {
+        dicteeCount.textContent = "0 dictees found";
+        dicteeList.innerHTML = "<p>No dictees found in this folder yet.</p>";
+        return;
+      }
+
+      dicteeCount.textContent = `${dicteeEntries.length} dictee${dicteeEntries.length !== 1 ? "s" : ""} found`;
+
+      dicteeEntries.forEach((entry, index) => {
+        const button = document.createElement("button");
+        button.className = "dictee-button";
+        button.type = "button";
+        button.dataset.index = index;
+        button.innerHTML = `
+          <div>
+            <span>Grade ${entry.grade}</span>
+            <small>Dictee ${entry.number}</small>
+          </div>
+          <div>Start ➜</div>
+        `;
+        button.addEventListener("click", () => {
+          startDictee(entry).catch((error) => {
+            setDicteeStatus(`Couldn't load dictee: ${error.message}`, true);
+          });
+        });
+        dicteeList.appendChild(button);
+      });
     };
 
-    const downloadDicteeFile = (text) => {
-      const blob = new Blob([text], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = dicteeFilename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
+    const loadDicteeWords = async (entry) => {
+      const file = await entry.fileHandle.getFile();
+      const text = await file.text();
+      dicteePreview.value = text.trim();
+      return parseWords(text);
     };
 
     const speakWord = (word) => {
@@ -566,6 +614,12 @@
     const showResults = () => {
       practicePanel.classList.add("hidden");
       resultsPanel.classList.remove("hidden");
+    };
+
+    const showSetup = () => {
+      practicePanel.classList.add("hidden");
+      resultsPanel.classList.add("hidden");
+      setupPanel.classList.remove("hidden");
     };
 
     const resetPractice = (wordList) => {
@@ -732,24 +786,17 @@
       showResults();
     };
 
-    startButton.addEventListener("click", () => {
-      const list = parseWords();
+    const startDictee = async (entry) => {
+      const list = await loadDicteeWords(entry);
       if (list.length === 0) {
-        wordCount.textContent = "Please add at least 1 word";
-        wordCount.style.background = "#fee2e2";
-        wordCount.style.color = "#991b1b";
+        setDicteeStatus("This dictee file is empty.", true);
         return;
       }
-      wordCount.style.background = "#eff6ff";
-      wordCount.style.color = "";
+      dicteePill.textContent = `Grade ${entry.grade} · Dictee ${entry.number}`;
+      setDicteeStatus(`Loaded grade ${entry.grade}, dictee ${entry.number}.`);
       resetPractice(list);
       speakWord(words[currentIndex]);
-      saveDicteeWords(list).catch((error) => {
-        setFileStatus(`Couldn't save dictee.txt: ${error.message}`, true);
-      });
-    });
-
-    wordInput.addEventListener("input", updateWordCount);
+    };
 
     speakButton.addEventListener("click", () => {
       speakWord(words[currentIndex]);
@@ -795,108 +842,44 @@
       speakWord(words[currentIndex]);
     });
 
-    const saveDicteeWords = async (list) => {
-      const text = `${list.join("\n")}\n`;
-      if (supportsFileAccess) {
-        const handle = await ensureDirectoryHandle();
-        if (!handle) {
-          setFileStatus("Browser file access is not available.", true);
-          downloadDicteeFile(text);
-          return;
-        }
-        await saveToDirectory(handle, text);
-        setFileStatus(`Saved ${dicteeFilename} in your chosen folder.`);
-        return;
-      }
-      downloadDicteeFile(text);
-      setFileStatus("Downloaded dictee.txt (browser can't save files directly).");
-    };
+    chooseAnother.addEventListener("click", () => {
+      showSetup();
+    });
 
-    const loadDicteeWords = async (promptForFolder = false) => {
-      if (supportsFileAccess) {
-        let handle = await getStoredDirectoryHandle();
-        if (!handle && promptForFolder) {
-          handle = await ensureDirectoryHandle();
-        }
-        if (handle) {
-          const permission = await handle.requestPermission({ mode: "readwrite" });
-          if (permission !== "granted") {
-            setFileStatus("Permission needed to read dictee.txt.", true);
-            return;
-          }
-          const text = await loadFromDirectory(handle);
-          if (text) {
-            populateWords(text);
-            setFileStatus(`Loaded ${dicteeFilename} from your folder.`);
-            return;
-          }
-          setFileStatus(`${dicteeFilename} not found in the selected folder.`, true);
-          return;
-        }
-      }
-
-      if (location.protocol.startsWith("http")) {
-        try {
-          const response = await fetch(dicteeFilename);
-          if (response.ok) {
-            const text = await response.text();
-            populateWords(text);
-            setFileStatus(`Loaded ${dicteeFilename} from this folder.`);
-            return;
-          }
-        } catch (error) {
-          setFileStatus(`Couldn't load ${dicteeFilename}: ${error.message}`, true);
-          return;
-        }
-      }
-
-      setFileStatus("Add words and save them to create dictee.txt.");
-    };
-
-    const deleteDicteeWords = async () => {
+    const refreshDicteeLibrary = async (promptForFolder = false) => {
       if (!supportsFileAccess) {
-        setFileStatus("Delete isn't available without browser file access.", true);
+        setDicteeStatus("Your browser doesn't support folder access. Use a modern browser.", true);
         return;
       }
-      try {
-        const handle = await ensureDirectoryHandle();
-        await deleteFromDirectory(handle);
-        await clearStoredDirectoryHandle();
-        wordInput.value = "";
-        updateWordCount();
-        setFileStatus("dictee.txt deleted.");
-      } catch (error) {
-        if (error.name === "NotFoundError") {
-          setFileStatus("dictee.txt already removed.");
-          return;
-        }
-        setFileStatus(`Couldn't delete dictee.txt: ${error.message}`, true);
+
+      let handle = await getStoredDirectoryHandle();
+      if (!handle && promptForFolder) {
+        handle = await ensureDirectoryHandle();
       }
+
+      if (!handle) {
+        setDicteeStatus("Choose a dictee folder to begin.");
+        return;
+      }
+
+      const permission = await handle.requestPermission({ mode: "read" });
+      if (permission !== "granted") {
+        setDicteeStatus("Permission needed to read dictee files.", true);
+        return;
+      }
+
+      dicteeEntries = (await listDictees(handle)).sort(compareDictee);
+      renderDicteeList();
+      setDicteeStatus("Select a dictee to start practicing.");
     };
 
-    loadFileButton.addEventListener("click", () => {
-      loadDicteeWords(true).catch((error) => {
-        setFileStatus(`Couldn't load dictee.txt: ${error.message}`, true);
+    chooseFolderButton.addEventListener("click", () => {
+      refreshDicteeLibrary(true).catch((error) => {
+        setDicteeStatus(`Couldn't access folder: ${error.message}`, true);
       });
     });
 
-    saveFileButton.addEventListener("click", () => {
-      const list = parseWords();
-      if (list.length === 0) {
-        setFileStatus("Add at least one word before saving.", true);
-        return;
-      }
-      saveDicteeWords(list).catch((error) => {
-        setFileStatus(`Couldn't save dictee.txt: ${error.message}`, true);
-      });
-    });
-
-    deleteFileButton.addEventListener("click", () => {
-      deleteDicteeWords();
-    });
-
-    updateWordCount();
-    loadDicteeWords(false);
+    refreshDicteeLibrary(false);
     setCelebrationImage(getNextImage(), "Spell a word correctly to see a new photo!");
   </script>
 </body>
