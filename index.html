@@ -57,12 +57,96 @@
       gap: 12px;
     }
 
+    .celebration-frame {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
     .image-panel img {
       width: 100%;
       border-radius: 16px;
       object-fit: cover;
       max-height: 420px;
       box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    .image-panel img.sparkle {
+      animation: sparkle-glow 1.6s ease-in-out;
+    }
+
+    .celebration-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.5), transparent 60%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .celebration-frame.sparkle::after {
+      opacity: 1;
+      animation: sparkle-flash 1.4s ease-in-out;
+    }
+
+    .confetti {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -10%;
+      width: 8px;
+      height: 14px;
+      opacity: 0.9;
+      border-radius: 3px;
+      animation: confetti-fall 1.8s ease-out forwards;
+    }
+
+    @keyframes sparkle-glow {
+      0% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0));
+      }
+      50% {
+        transform: scale(1.02);
+        filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.65));
+      }
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 0 rgba(251, 191, 36, 0));
+      }
+    }
+
+    @keyframes sparkle-flash {
+      0% {
+        opacity: 0;
+      }
+      40% {
+        opacity: 0.8;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-10%) rotate(0deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(120%) rotate(240deg);
+        opacity: 0;
+      }
     }
 
     h1 {
@@ -286,7 +370,10 @@
 
       <aside class="image-panel">
         <h2>Celebration Image</h2>
-        <img id="celebration-image" src="" alt="A celebratory image appears here." />
+        <div class="celebration-frame" id="celebration-frame">
+          <img id="celebration-image" src="" alt="A celebratory image appears here." />
+          <div class="confetti" id="confetti"></div>
+        </div>
         <p id="image-caption">Spell a word correctly to see a new photo!</p>
       </aside>
     </div>
@@ -318,6 +405,8 @@
     const fileStatus = document.getElementById("file-status");
     const celebrationImage = document.getElementById("celebration-image");
     const imageCaption = document.getElementById("image-caption");
+    const celebrationFrame = document.getElementById("celebration-frame");
+    const confetti = document.getElementById("confetti");
 
     let words = [];
     let results = [];
@@ -528,18 +617,48 @@
         : `❌ Not quite. The correct spelling is “${currentWord}”.`;
       feedback.className = `feedback ${isCorrect ? "correct" : "incorrect"}`;
       if (isCorrect) {
-        updateCelebrationImage();
+        updateCelebrationImage(true);
       }
       answerInput.value = "";
       updateProgress();
     };
 
-    const updateCelebrationImage = () => {
+    const updateCelebrationImage = (shouldCelebrate = false) => {
       if (!backgroundImages.length) return;
       const image = backgroundImages[backgroundIndex % backgroundImages.length];
       backgroundIndex += 1;
       celebrationImage.src = image;
       imageCaption.textContent = "✨ Great spelling! Here's a new photo.";
+      if (shouldCelebrate) {
+        triggerCelebrationEffects();
+      }
+    };
+
+    const triggerCelebrationEffects = () => {
+      celebrationImage.classList.remove("sparkle");
+      celebrationFrame.classList.remove("sparkle");
+      void celebrationImage.offsetWidth;
+      celebrationImage.classList.add("sparkle");
+      celebrationFrame.classList.add("sparkle");
+      launchConfetti();
+    };
+
+    const launchConfetti = () => {
+      confetti.innerHTML = "";
+      const colors = ["#f97316", "#3b82f6", "#facc15", "#16a34a", "#ec4899", "#a855f7"];
+      const pieces = 24;
+      for (let i = 0; i < pieces; i += 1) {
+        const piece = document.createElement("span");
+        piece.className = "confetti-piece";
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.backgroundColor = colors[i % colors.length];
+        piece.style.animationDelay = `${Math.random() * 0.4}s`;
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        confetti.appendChild(piece);
+      }
+      setTimeout(() => {
+        confetti.innerHTML = "";
+      }, 2000);
     };
 
     const buildResults = () => {
