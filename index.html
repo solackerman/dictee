@@ -340,7 +340,6 @@
           </div>
           <div class="dictee-list" id="dictee-list"></div>
           <p id="dictee-status"></p>
-          <textarea id="dictee-preview" placeholder="Select a dictee to preview the words." readonly></textarea>
         </section>
 
         <section class="panel hidden" id="practice-panel">
@@ -409,7 +408,6 @@
     const dicteeList = document.getElementById("dictee-list");
     const dicteeStatus = document.getElementById("dictee-status");
     const dicteeCount = document.getElementById("dictee-count");
-    const dicteePreview = document.getElementById("dictee-preview");
     const celebrationImage = document.getElementById("celebration-image");
     const imageCaption = document.getElementById("image-caption");
     const confettiContainer = document.getElementById("confetti-container");
@@ -444,6 +442,11 @@
       "https://images.unsplash.com/photo-1517849845537-4d257902454a",
       "https://imgix.bustle.com/uploads/image/2025/6/30/813808ee/katseye_generalpress_02.jpg?w=390&h=546&fit=crop&crop=faces&dpr=2",
       "https://elle.com.sg/wp-content/uploads/2024/09/KATSEYE_Thrift1069_ElleSingapore-1-1-1.jpg",
+      "https://media0.giphy.com/media/v1.Y2lkPTZjMDliOTUycWMxeHo2a3pyNjNlNHloY2dteXd3ZWRneXp3eHZobnAxdnJrM3QybCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/du2blShdOu5pe/200w.gif",
+      "https://i.ytimg.com/vi/IzluNxh-8_o/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAw0L8gGhZ55d55ujB8SXlS7uRLVA",
+      "https://media.gettyimages.com/id/1399116492/vector/a-cute-dog-nurse-is-holding-a-big-syringe-and-running-toward-the-camera.jpg?s=612x612&w=gi&k=20&c=xFgD744AfXGnImFsNIAO2qkeHp5vPGvxCuhKoZlfikA=",
+      "https://i.ytimg.com/vi/NGC8IS4gjpM/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBfQoUpgwZFCp2tGmCdS5Edi-5rxA",
+      "https://media.istockphoto.com/id/680810342/photo/dog-watching-tv-on-the-couch.jpg?s=612x612&w=0&k=20&c=CQXmfuqlwL49GhcLDXIQSEZwq3iGpIkPJneWJUiI_0U="
     ];
     let backgroundIndex = 0;
 
@@ -592,7 +595,6 @@
     const loadDicteeWords = async (entry) => {
       const file = await entry.fileHandle.getFile();
       const text = await file.text();
-      dicteePreview.value = text.trim();
       return parseWords(text);
     };
 
