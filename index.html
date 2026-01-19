@@ -721,7 +721,7 @@
 
     const getNextImage = () => {
       if (!backgroundImages.length) return;
-      const image = backgroundImages[backgroundIndex % backgroundImages.length];
+      const image = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
       backgroundIndex += 1;
       return image;
     };
