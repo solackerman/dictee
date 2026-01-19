@@ -75,12 +75,15 @@
       animation: sparkle-glow 1.6s ease-in-out;
     }
 
+    .celebration-frame::before,
     .celebration-frame::after {
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.7), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.5), transparent 60%);
+      background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8), transparent 55%),
+        radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.6), transparent 60%),
+        radial-gradient(circle at 30% 80%, rgba(255, 255, 255, 0.5), transparent 55%),
+        radial-gradient(circle at 70% 75%, rgba(255, 255, 255, 0.7), transparent 60%);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease;
@@ -91,21 +94,31 @@
       animation: sparkle-flash 1.4s ease-in-out;
     }
 
+    .celebration-frame.sparkle::before {
+      opacity: 1;
+      animation: sparkle-flash 1.1s ease-in-out reverse;
+    }
+
+    .celebration-frame.sparkle {
+      animation: frame-bedazzle 1.6s ease-in-out;
+    }
+
     .confetti {
-      position: absolute;
+      position: fixed;
       inset: 0;
       pointer-events: none;
       overflow: hidden;
+      z-index: 100;
     }
 
     .confetti-piece {
       position: absolute;
-      top: -10%;
-      width: 8px;
-      height: 14px;
-      opacity: 0.9;
+      top: -8%;
+      width: 10px;
+      height: 18px;
+      opacity: 0.95;
       border-radius: 3px;
-      animation: confetti-fall 1.8s ease-out forwards;
+      animation: confetti-fall 2s ease-out forwards;
     }
 
     @keyframes sparkle-glow {
@@ -135,6 +148,19 @@
       }
     }
 
+    @keyframes frame-bedazzle {
+      0% {
+        box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+      }
+      35% {
+        box-shadow: 0 0 32px rgba(59, 130, 246, 0.45), 0 0 48px rgba(250, 204, 21, 0.45),
+          0 0 72px rgba(236, 72, 153, 0.35);
+      }
+      100% {
+        box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+      }
+    }
+
     @keyframes confetti-fall {
       0% {
         transform: translateY(-10%) rotate(0deg);
@@ -144,7 +170,7 @@
         opacity: 1;
       }
       100% {
-        transform: translateY(120%) rotate(240deg);
+        transform: translateY(120%) rotate(300deg);
         opacity: 0;
       }
     }
@@ -372,12 +398,12 @@
         <h2>Celebration Image</h2>
         <div class="celebration-frame" id="celebration-frame">
           <img id="celebration-image" src="" alt="A celebratory image appears here." />
-          <div class="confetti" id="confetti"></div>
         </div>
         <p id="image-caption">Spell a word correctly to see a new photo!</p>
       </aside>
     </div>
   </main>
+  <div class="confetti" id="confetti"></div>
 
   <script>
     const wordInput = document.getElementById("word-input");
@@ -645,20 +671,22 @@
 
     const launchConfetti = () => {
       confetti.innerHTML = "";
-      const colors = ["#f97316", "#3b82f6", "#facc15", "#16a34a", "#ec4899", "#a855f7"];
-      const pieces = 24;
+      const colors = ["#f97316", "#3b82f6", "#facc15", "#16a34a", "#ec4899", "#a855f7", "#22d3ee"];
+      const pieces = 80;
       for (let i = 0; i < pieces; i += 1) {
         const piece = document.createElement("span");
         piece.className = "confetti-piece";
         piece.style.left = `${Math.random() * 100}%`;
         piece.style.backgroundColor = colors[i % colors.length];
-        piece.style.animationDelay = `${Math.random() * 0.4}s`;
+        piece.style.animationDelay = `${Math.random() * 0.3}s`;
         piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        piece.style.width = `${6 + Math.random() * 8}px`;
+        piece.style.height = `${10 + Math.random() * 12}px`;
         confetti.appendChild(piece);
       }
       setTimeout(() => {
         confetti.innerHTML = "";
-      }, 2000);
+      }, 2200);
     };
 
     const buildResults = () => {
