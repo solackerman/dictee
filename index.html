@@ -330,16 +330,11 @@
       <div>
         <section class="panel" id="setup-panel">
           <h2>1) Choose a dictee</h2>
-          <p>
-            Organize dictees by grade and number (for example <strong>3/10/dictee.txt</strong>).
-            Select the root folder to see every available dictee.
-          </p>
           <div class="row">
-            <button class="primary" id="choose-folder">Choose dictee folder</button>
             <span id="dictee-count" class="pill">0 dictees found</span>
+            <button class="ghost" id="refresh-button" style="display: none;">Refresh</button>
           </div>
           <div class="dictee-list" id="dictee-list"></div>
-          <p id="dictee-status"></p>
         </section>
 
         <section class="panel hidden" id="practice-panel">
@@ -391,6 +386,26 @@
     const resultsPanel = document.getElementById("results-panel");
     const speakButton = document.getElementById("speak-button");
     const ttsAudio = document.getElementById("tts-audio");
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:388',message:'Audio element initialization',data:{ttsAudioExists:!!ttsAudio,ttsAudioTagName:ttsAudio?.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    
+    // Load speech synthesis voices
+    let voicesLoaded = false;
+    if ('speechSynthesis' in window) {
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        voicesLoaded = voices.length > 0;
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:395',message:'Voices loaded',data:{voicesCount:voices.length,frenchVoicesCount:voices.filter(v => v.lang.startsWith('fr')).length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.log('[DEBUG] Voices loaded',{voicesCount:voices.length,frenchVoicesCount:voices.filter(v => v.lang.startsWith('fr')).length});
+        // #endregion
+      };
+      loadVoices(); // Try immediately
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      }
+    }
+    
     const answerInput = document.getElementById("answer-input");
     const nextButton = document.getElementById("next-button");
     const feedback = document.getElementById("feedback");
@@ -404,9 +419,8 @@
     const retryAll = document.getElementById("retry-all");
     const retryWrong = document.getElementById("retry-wrong");
     const chooseAnother = document.getElementById("choose-another");
-    const chooseFolderButton = document.getElementById("choose-folder");
+    const refreshButton = document.getElementById("refresh-button");
     const dicteeList = document.getElementById("dictee-list");
-    const dicteeStatus = document.getElementById("dictee-status");
     const dicteeCount = document.getElementById("dictee-count");
     const celebrationImage = document.getElementById("celebration-image");
     const imageCaption = document.getElementById("image-caption");
@@ -463,10 +477,6 @@
         .filter((word) => word.length > 0);
     };
 
-    const setDicteeStatus = (message, isError = false) => {
-      dicteeStatus.textContent = message;
-      dicteeStatus.style.color = isError ? "#b91c1c" : "";
-    };
 
     const openDb = () =>
       new Promise((resolve, reject) => {
@@ -544,6 +554,77 @@
       return entries;
     };
 
+    const testDicteePath = async (path) => {
+      try {
+        const response = await fetch(path, { 
+          method: 'GET',
+          cache: 'no-cache'
+        });
+        console.log(`Test fetch for ${path}: status=${response.status}, ok=${response.ok}`);
+        return response.ok;
+      } catch (error) {
+        console.error(`Test fetch failed for ${path}:`, error);
+        return false;
+      }
+    };
+
+    const discoverDicteesViaHTTP = async () => {
+      // Check if we're in a file:// context (won't work with fetch)
+      if (window.location.protocol === 'file:') {
+        throw new Error('File protocol detected. Please serve this page via HTTP. Try: "python -m http.server 8000" or "npx serve" in the project directory.');
+      }
+      
+      console.log(`Starting discovery from: ${window.location.href}`);
+      
+      // Test a known path first to verify HTTP access works
+      const testPath = '3/14/dictee.txt';
+      const testResult = await testDicteePath(testPath);
+      console.log(`Test path ${testPath} accessible: ${testResult}`);
+      
+      const maxGrade = 20; // Reasonable upper limit for grade numbers
+      const maxNumber = 50; // Reasonable upper limit for dictee numbers
+      const results = [];
+      
+      // Try to discover dictees by attempting to fetch files matching the pattern
+      // Process in batches to avoid overwhelming the browser
+      const batchSize = 25;
+      
+      for (let grade = 1; grade <= maxGrade; grade++) {
+        for (let number = 1; number <= maxNumber; number += batchSize) {
+          const batchPromises = [];
+          
+          for (let n = number; n < Math.min(number + batchSize, maxNumber + 1); n++) {
+            const path = `${grade}/${n}/${dicteeFilename}`;
+            batchPromises.push(
+              fetch(path, { 
+                method: 'GET',
+                cache: 'no-cache',
+                headers: { 'Accept': 'text/plain' }
+              })
+                .then(response => {
+                  if (response.ok && response.status === 200) {
+                    console.log(`Found: ${path}`);
+                    return { grade: String(grade), number: String(n), path };
+                  }
+                  return null;
+                })
+                .catch((error) => {
+                  // Silently ignore 404s and other fetch errors
+                  return null;
+                })
+            );
+          }
+          
+          const batchResults = await Promise.all(batchPromises);
+          const found = batchResults.filter(entry => entry !== null);
+          results.push(...found);
+        }
+      }
+      
+      console.log(`Discovery complete. Found ${results.length} dictee files`);
+      return results;
+    };
+
     const compareDictee = (a, b) => {
       const gradeA = Number.parseInt(a.grade, 10);
       const gradeB = Number.parseInt(b.grade, 10);
@@ -585,7 +666,7 @@
         `;
         button.addEventListener("click", () => {
           startDictee(entry).catch((error) => {
-            setDicteeStatus(`Couldn't load dictee: ${error.message}`, true);
+            console.error(`Couldn't load dictee: ${error.message}`);
           });
         });
         dicteeList.appendChild(button);
@@ -593,18 +674,219 @@
     };
 
     const loadDicteeWords = async (entry) => {
-      const file = await entry.fileHandle.getFile();
-      const text = await file.text();
+      let text;
+      if (entry.fileHandle) {
+        // File System Access API
+        const file = await entry.fileHandle.getFile();
+        text = await file.text();
+      } else if (entry.path) {
+        // HTTP-based access
+        const response = await fetch(entry.path);
+        if (!response.ok) {
+          throw new Error(`Failed to load dictee: ${response.statusText}`);
+        }
+        text = await response.text();
+      } else {
+        throw new Error("Invalid dictee entry: missing fileHandle or path");
+      }
       return parseWords(text);
     };
 
     const speakWord = (word) => {
-      if (!word) return;
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:678',message:'speakWord called',data:{word:word,wordType:typeof word,wordLength:word?.length,hasSpeechSynthesis:'speechSynthesis' in window},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});console.log('[DEBUG] speakWord called',{word,wordType:typeof word,hasSpeechSynthesis:'speechSynthesis' in window});
+      // #endregion
+      if (!word) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:682',message:'speakWord early return - no word',data:{word:word},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});console.log('[DEBUG] speakWord early return - no word');
+        // #endregion
+        return;
+      }
+      
+      // Use Web Speech API (speechSynthesis) - no CORS issues, works offline, better browser support
+      if ('speechSynthesis' in window) {
+        // Ensure voices are loaded
+        let voices = window.speechSynthesis.getVoices();
+        if (voices.length === 0) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:707',message:'No voices yet, waiting for voiceschanged',data:{word:word},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.log('[DEBUG] No voices yet, waiting for voiceschanged',{word});
+          // #endregion
+          // Wait for voices to load
+          const waitForVoices = () => {
+            voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+              // #region agent log
+              fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:711',message:'Voices loaded, proceeding',data:{voicesCount:voices.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.log('[DEBUG] Voices loaded, proceeding',{voicesCount:voices.length});
+              // #endregion
+              doSpeak(word, voices);
+            } else {
+              // Try again after a short delay
+              setTimeout(waitForVoices, 100);
+            }
+          };
+          if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = waitForVoices;
+          }
+          setTimeout(waitForVoices, 100);
+          return;
+        }
+        
+        doSpeak(word, voices);
+        return;
+      }
+      
+      function doSpeak(word, voices) {
+        // #region agent log
+        const frenchVoices = voices.filter(v => v.lang.startsWith('fr') || v.lang.includes('fr'));
+        fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:738',message:'Checking for French voices',data:{word:word,voicesCount:voices.length,frenchVoicesCount:frenchVoices.length,allVoices:voices.map(v=>v.lang)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.log('[DEBUG] Checking for French voices',{word,voicesCount:voices.length,frenchVoicesCount:frenchVoices.length,allVoices:voices.map(v=>v.lang)});
+        // #endregion
+        
+        // Try to find a French voice - must have one to use Web Speech API
+        const frenchVoice = voices.find(v => v.lang.startsWith('fr')) || voices.find(v => v.lang.includes('fr'));
+        
+        if (!frenchVoice) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:743',message:'No French voice found, falling back to Google TTS',data:{voicesCount:voices.length,availableLangs:voices.map(v=>v.lang)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.warn('[DEBUG] No French voice found, falling back to Google TTS',{voicesCount:voices.length,availableLangs:voices.map(v=>v.lang)});
+          // #endregion
+          fallbackToGoogleTTS(word);
+          return;
+        }
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:748',message:'Using Web Speech API with French voice',data:{word:word,voiceName:frenchVoice.name,voiceLang:frenchVoice.lang},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.log('[DEBUG] Using Web Speech API with French voice',{word,voiceName:frenchVoice.name,voiceLang:frenchVoice.lang});
+        // #endregion
+        
+        // Cancel any ongoing speech
+        window.speechSynthesis.cancel();
+        
+        // Wait a bit for cancel to complete
+        setTimeout(() => {
+          const utterance = new SpeechSynthesisUtterance(word);
+          utterance.lang = 'fr-FR'; // French
+          utterance.rate = 0.9; // Slightly slower for clarity
+          utterance.voice = frenchVoice; // Explicitly set French voice
+          
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:757',message:'Created utterance with French voice',data:{word:word,lang:utterance.lang,voiceName:utterance.voice.name,voiceLang:utterance.voice.lang},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.log('[DEBUG] Created utterance with French voice',{word,lang:utterance.lang,voiceName:utterance.voice.name,voiceLang:utterance.voice.lang});
+          // #endregion
+          
+          let speechStarted = false;
+          const startTimeout = setTimeout(() => {
+            if (!speechStarted) {
+              // #region agent log
+              fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:743',message:'Speech did not start within timeout, falling back',data:{word:word},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.warn('[DEBUG] Speech did not start within timeout, falling back',{word});
+              // #endregion
+              fallbackToGoogleTTS(word);
+            }
+          }, 2000);
+          
+          utterance.onstart = () => {
+            speechStarted = true;
+            clearTimeout(startTimeout);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:750',message:'Speech started',data:{word:word},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.log('[DEBUG] Speech started',{word});
+            // #endregion
+          };
+          
+          utterance.onerror = (event) => {
+            clearTimeout(startTimeout);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:755',message:'Speech error',data:{error:event?.error,errorType:event?.type,charIndex:event?.charIndex,charLength:event?.charLength,word:word},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.error('[DEBUG] Speech error',{error:event?.error,type:event?.type,charIndex:event?.charIndex,charLength:event?.charLength});
+            // #endregion
+            // Fallback to Google TTS if Web Speech fails
+            fallbackToGoogleTTS(word);
+          };
+          
+          utterance.onend = () => {
+            clearTimeout(startTimeout);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:762',message:'Speech ended',data:{word:word},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.log('[DEBUG] Speech ended',{word});
+            // #endregion
+          };
+          
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:766',message:'Calling speechSynthesis.speak',data:{word:word,lang:utterance.lang,rate:utterance.rate,voice:utterance.voice?.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.log('[DEBUG] Calling speechSynthesis.speak',{word,lang:utterance.lang,rate:utterance.rate,voice:utterance.voice?.name});
+          // #endregion
+          
+          try {
+            window.speechSynthesis.speak(utterance);
+            // #region agent log
+            setTimeout(() => {
+              fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:770',message:'After speak() call',data:{pending:window.speechSynthesis.pending,speaking:window.speechSynthesis.speaking},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.log('[DEBUG] After speak() call',{pending:window.speechSynthesis.pending,speaking:window.speechSynthesis.speaking});
+            }, 100);
+            // #endregion
+          } catch (err) {
+            clearTimeout(startTimeout);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:774',message:'speak() threw error',data:{errorName:err?.name,errorMessage:err?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});console.error('[DEBUG] speak() threw error',err);
+            // #endregion
+            fallbackToGoogleTTS(word);
+          }
+        }, 50);
+      }
+      
+      // Fallback to Google TTS if Web Speech API is not available
+      fallbackToGoogleTTS(word);
+    };
+    
+    const fallbackToGoogleTTS = (word) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:715',message:'Using Google TTS fallback',data:{word:word},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});console.log('[DEBUG] Using Google TTS fallback',{word});
+      // #endregion
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:716',message:'ttsAudio element check',data:{ttsAudioExists:!!ttsAudio,ttsAudioReadyState:ttsAudio?.readyState,ttsAudioError:ttsAudio?.error?.code,ttsAudioNetworkState:ttsAudio?.networkState},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});console.log('[DEBUG] ttsAudio check',{exists:!!ttsAudio,readyState:ttsAudio?.readyState,error:ttsAudio?.error});
+      // #endregion
       const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=fr&q=${encodeURIComponent(
         word
       )}`;
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:720',message:'Setting audio src',data:{url:url,urlLength:url.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});console.log('[DEBUG] Setting audio src',url);
+      // #endregion
       ttsAudio.src = url;
-      ttsAudio.play();
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:723',message:'Audio src set',data:{src:ttsAudio.src,readyStateBefore:ttsAudio.readyState},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});console.log('[DEBUG] Audio src set',{src:ttsAudio.src,readyState:ttsAudio.readyState});
+      // #endregion
+      
+      const errorHandler = (e) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:726',message:'Audio element error event',data:{errorCode:ttsAudio?.error?.code,errorMessage:ttsAudio?.error?.message,networkState:ttsAudio?.networkState,readyState:ttsAudio?.readyState},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});console.error('[DEBUG] Audio element error event',{code:ttsAudio?.error?.code,message:ttsAudio?.error?.message,networkState:ttsAudio?.networkState,readyState:ttsAudio?.readyState});
+        // #endregion
+      };
+      ttsAudio.addEventListener('error', errorHandler, { once: true });
+      
+      const loadstartHandler = () => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:731',message:'Audio loadstart event',data:{readyState:ttsAudio.readyState},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});console.log('[DEBUG] Audio loadstart event',{readyState:ttsAudio.readyState});
+        // #endregion
+      };
+      ttsAudio.addEventListener('loadstart', loadstartHandler, { once: true });
+      
+      // Fix: Wait for audio to load before playing, and handle play() promise properly
+      const playWhenReady = () => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:737',message:'Attempting to play audio',data:{readyState:ttsAudio.readyState,currentSrc:ttsAudio.currentSrc},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});console.log('[DEBUG] Attempting to play audio',{readyState:ttsAudio.readyState,currentSrc:ttsAudio.currentSrc});
+        // #endregion
+        const playPromise = ttsAudio.play();
+        playPromise.then(() => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:739',message:'play() promise resolved',data:{paused:ttsAudio.paused},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});console.log('[DEBUG] play() promise resolved',{paused:ttsAudio.paused});
+          // #endregion
+        }).catch((err) => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:741',message:'play() promise rejected',data:{errorName:err?.name,errorMessage:err?.message,errorCode:err?.code},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});console.error('[DEBUG] play() promise rejected',err);
+          // #endregion
+        });
+      };
+      
+      ttsAudio.addEventListener('canplaythrough', playWhenReady, { once: true });
+      
+      // If audio is already loaded, play immediately
+      if (ttsAudio.readyState >= 3) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:748',message:'Audio already ready - playing immediately',data:{readyState:ttsAudio.readyState},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});console.log('[DEBUG] Audio already ready - playing immediately',{readyState:ttsAudio.readyState});
+        // #endregion
+        playWhenReady();
+      }
     };
 
     const showPractice = () => {
@@ -791,11 +1073,10 @@
     const startDictee = async (entry) => {
       const list = await loadDicteeWords(entry);
       if (list.length === 0) {
-        setDicteeStatus("This dictee file is empty.", true);
+        console.error("This dictee file is empty.");
         return;
       }
       dicteePill.textContent = `Grade ${entry.grade} · Dictee ${entry.number}`;
-      setDicteeStatus(`Loaded grade ${entry.grade}, dictee ${entry.number}.`);
       resetPractice(list);
       speakWord(words[currentIndex]);
     };
@@ -848,40 +1129,43 @@
       showSetup();
     });
 
-    const refreshDicteeLibrary = async (promptForFolder = false) => {
-      if (!supportsFileAccess) {
-        setDicteeStatus("Your browser doesn't support folder access. Use a modern browser.", true);
-        return;
+    const refreshDicteeLibrary = async () => {
+      dicteeCount.textContent = "Discovering...";
+      
+      try {
+        console.log("Starting dictee discovery...");
+        const httpEntries = await discoverDicteesViaHTTP();
+        console.log(`Discovery complete. Found ${httpEntries.length} entries.`);
+        
+        if (httpEntries.length > 0) {
+          dicteeEntries = httpEntries.sort(compareDictee);
+          renderDicteeList();
+          if (refreshButton) {
+            refreshButton.style.display = "inline-block";
+          }
+          return;
+        }
+        
+        // No dictees found via HTTP
+        console.warn("No dictees found. Make sure this page is served via HTTP (not file://) and dictee files exist in folders matching number/number/dictee.txt (e.g., 3/14/dictee.txt)");
+        dicteeEntries = [];
+        renderDicteeList();
+      } catch (error) {
+        console.error("Error discovering dictees:", error);
+        dicteeEntries = [];
+        renderDicteeList();
       }
-
-      let handle = await getStoredDirectoryHandle();
-      if (!handle && promptForFolder) {
-        handle = await ensureDirectoryHandle();
-      }
-
-      if (!handle) {
-        setDicteeStatus("Choose a dictee folder to begin.");
-        return;
-      }
-
-      const permission = await handle.requestPermission({ mode: "read" });
-      if (permission !== "granted") {
-        setDicteeStatus("Permission needed to read dictee files.", true);
-        return;
-      }
-
-      dicteeEntries = (await listDictees(handle)).sort(compareDictee);
-      renderDicteeList();
-      setDicteeStatus("Select a dictee to start practicing.");
     };
 
-    chooseFolderButton.addEventListener("click", () => {
-      refreshDicteeLibrary(true).catch((error) => {
-        setDicteeStatus(`Couldn't access folder: ${error.message}`, true);
+    if (refreshButton) {
+      refreshButton.addEventListener("click", () => {
+        refreshDicteeLibrary().catch((error) => {
+          console.error(`Error: ${error.message}`);
+        });
       });
-    });
+    }
 
-    refreshDicteeLibrary(false);
+    refreshDicteeLibrary();
     setCelebrationImage(getNextImage(), "Spell a word correctly to see a new photo!");
   </script>
 </body>
