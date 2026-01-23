@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>French Dictee Practice</title>
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
   <style>
     :root {
       color-scheme: light;
@@ -324,7 +325,7 @@
   <div class="confetti-container" id="confetti-container" aria-hidden="true"></div>
   <main>
     <h1>French Dictee Practice</h1>
-    <p>Pick a dictee from your folder structure and jump right into practice.</p>
+    <p>Pick a dictee and jump right into practice.</p>
 
     <div class="layout">
       <div>
@@ -431,8 +432,7 @@
     let results = [];
     let currentIndex = 0;
     let dicteeEntries = [];
-    const dicteeFilename = "dictee.txt";
-    const supportsFileAccess = "showDirectoryPicker" in window;
+    let dicteeData = null; // Store parsed YAML data
     const backgroundImages = [
       "https://mymodernmet.com/wp/wp-content/uploads/2020/10/cooper-baby-corgi-dogs-8.jpg",
       "https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/9dcfc9b6-5349-52e7-a643-d2af65b338ab/0af98422-8d5d-5204-9f00-361f34eddb23.jpg",
@@ -560,75 +560,49 @@
       return entries;
     };
 
-    const testDicteePath = async (path) => {
-      try {
-        const response = await fetch(path, { 
-          method: 'GET',
-          cache: 'no-cache'
-        });
-        console.log(`Test fetch for ${path}: status=${response.status}, ok=${response.ok}`);
-        return response.ok;
-      } catch (error) {
-        console.error(`Test fetch failed for ${path}:`, error);
-        return false;
-      }
-    };
-
-    const discoverDicteesViaHTTP = async () => {
+    const loadDicteesFromYAML = async () => {
       // Check if we're in a file:// context (won't work with fetch)
       if (window.location.protocol === 'file:') {
         throw new Error('File protocol detected. Please serve this page via HTTP. Try: "python -m http.server 8000" or "npx serve" in the project directory.');
       }
       
-      console.log(`Starting discovery from: ${window.location.href}`);
-      
-      // Test a known path first to verify HTTP access works
-      const testPath = '3/14/dictee.txt';
-      const testResult = await testDicteePath(testPath);
-      console.log(`Test path ${testPath} accessible: ${testResult}`);
-      
-      const maxGrade = 20; // Reasonable upper limit for grade numbers
-      const maxNumber = 50; // Reasonable upper limit for dictee numbers
-      const results = [];
-      
-      // Try to discover dictees by attempting to fetch files matching the pattern
-      // Process in batches to avoid overwhelming the browser
-      const batchSize = 25;
-      
-      for (let grade = 1; grade <= maxGrade; grade++) {
-        for (let number = 1; number <= maxNumber; number += batchSize) {
-          const batchPromises = [];
-          
-          for (let n = number; n < Math.min(number + batchSize, maxNumber + 1); n++) {
-            const path = `${grade}/${n}/${dicteeFilename}`;
-            batchPromises.push(
-              fetch(path, { 
-                method: 'GET',
-                cache: 'no-cache',
-                headers: { 'Accept': 'text/plain' }
-              })
-                .then(response => {
-                  if (response.ok && response.status === 200) {
-                    console.log(`Found: ${path}`);
-                    return { grade: String(grade), number: String(n), path };
-                  }
-                  return null;
-                })
-                .catch((error) => {
-                  // Silently ignore 404s and other fetch errors
-                  return null;
-                })
-            );
-          }
-          
-          const batchResults = await Promise.all(batchPromises);
-          const found = batchResults.filter(entry => entry !== null);
-          results.push(...found);
+      try {
+        const response = await fetch('dictees.yaml', { 
+          method: 'GET',
+          cache: 'no-cache',
+          headers: { 'Accept': 'text/yaml, text/plain' }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load dictees.yaml: ${response.statusText}`);
         }
+        
+        const yamlText = await response.text();
+        
+        // Parse YAML using js-yaml library
+        if (typeof jsyaml === 'undefined') {
+          throw new Error('YAML parser not loaded. Please ensure js-yaml library is available.');
+        }
+        
+        dicteeData = jsyaml.load(yamlText);
+        
+        // Convert YAML structure to entries array
+        const entries = [];
+        for (const [grade, dictees] of Object.entries(dicteeData)) {
+          if (typeof dictees !== 'object' || dictees === null) continue;
+          for (const [number, words] of Object.entries(dictees)) {
+            if (Array.isArray(words) && words.length > 0) {
+              entries.push({ grade, number });
+            }
+          }
+        }
+        
+        console.log(`Loaded ${entries.length} dictees from YAML`);
+        return entries;
+      } catch (error) {
+        console.error('Error loading dictees.yaml:', error);
+        throw error;
       }
-      
-      console.log(`Discovery complete. Found ${results.length} dictee files`);
-      return results;
     };
 
     const compareDictee = (a, b) => {
@@ -680,22 +654,24 @@
     };
 
     const loadDicteeWords = async (entry) => {
-      let text;
-      if (entry.fileHandle) {
-        // File System Access API
-        const file = await entry.fileHandle.getFile();
-        text = await file.text();
-      } else if (entry.path) {
-        // HTTP-based access
-        const response = await fetch(entry.path);
-        if (!response.ok) {
-          throw new Error(`Failed to load dictee: ${response.statusText}`);
-        }
-        text = await response.text();
-      } else {
-        throw new Error("Invalid dictee entry: missing fileHandle or path");
+      if (!dicteeData) {
+        throw new Error("Dictee data not loaded. Please refresh the page.");
       }
-      return parseWords(text);
+      
+      const grade = entry.grade;
+      const number = entry.number;
+      
+      if (!dicteeData[grade] || !dicteeData[grade][number]) {
+        throw new Error(`Dictee not found: Grade ${grade}, Dictee ${number}`);
+      }
+      
+      const words = dicteeData[grade][number];
+      if (!Array.isArray(words)) {
+        throw new Error(`Invalid dictee format: Grade ${grade}, Dictee ${number}`);
+      }
+      
+      // Return words as-is (already an array from YAML)
+      return words.map(word => word.trim()).filter(word => word.length > 0);
     };
 
     const speakWord = (word) => {
@@ -1136,15 +1112,15 @@
     });
 
     const refreshDicteeLibrary = async () => {
-      dicteeCount.textContent = "Discovering...";
+      dicteeCount.textContent = "Loading...";
       
       try {
-        console.log("Starting dictee discovery...");
-        const httpEntries = await discoverDicteesViaHTTP();
-        console.log(`Discovery complete. Found ${httpEntries.length} entries.`);
+        console.log("Loading dictees from YAML...");
+        const entries = await loadDicteesFromYAML();
+        console.log(`Loaded ${entries.length} dictees.`);
         
-        if (httpEntries.length > 0) {
-          dicteeEntries = httpEntries.sort(compareDictee);
+        if (entries.length > 0) {
+          dicteeEntries = entries.sort(compareDictee);
           renderDicteeList();
           if (refreshButton) {
             refreshButton.style.display = "inline-block";
@@ -1152,13 +1128,14 @@
           return;
         }
         
-        // No dictees found via HTTP
-        console.warn("No dictees found. Make sure this page is served via HTTP (not file://) and dictee files exist in folders matching number/number/dictee.txt (e.g., 3/14/dictee.txt)");
+        // No dictees found
+        console.warn("No dictees found in dictees.yaml");
         dicteeEntries = [];
         renderDicteeList();
       } catch (error) {
-        console.error("Error discovering dictees:", error);
+        console.error("Error loading dictees:", error);
         dicteeEntries = [];
+        dicteeCount.textContent = `Error: ${error.message}`;
         renderDicteeList();
       }
     };
