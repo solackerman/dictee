@@ -212,33 +212,57 @@
       font-size: 1.4rem;
     }
 
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 8px;
+    }
+
+    .tab-button {
+      background: transparent;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.2s ease;
+    }
+
+    .tab-button:hover {
+      background: var(--surface-alt);
+      color: var(--text);
+    }
+
+    .tab-button.active {
+      background: var(--primary);
+      color: white;
+    }
+
     .dictee-list {
       display: grid;
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
       margin-top: 12px;
     }
 
     .dictee-button {
       background: #ffffff;
-      border-radius: 16px;
+      border-radius: 12px;
       border: 1px solid #e5e7eb;
-      padding: 14px 16px;
+      padding: 12px;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      text-align: left;
+      text-align: center;
       width: 100%;
+      min-height: 80px;
     }
 
-    .dictee-button span {
-      display: block;
-      font-weight: 700;
-    }
-
-    .dictee-button small {
-      color: var(--muted);
-      font-weight: 500;
-    }
 
     .confetti-container {
       position: fixed;
@@ -331,6 +355,10 @@
       <div>
         <section class="panel" id="setup-panel">
           <h2>1) Choose a dictee</h2>
+          <div class="tabs">
+            <button class="tab-button active" data-grade="3">Grade 3</button>
+            <button class="tab-button" data-grade="6">Grade 6</button>
+          </div>
           <div class="row">
             <span id="dictee-count" class="pill">0 dictees found</span>
             <button class="ghost" id="refresh-button" style="display: none;">Refresh</button>
@@ -433,6 +461,7 @@
     let currentIndex = 0;
     let dicteeEntries = [];
     let dicteeData = null; // Store parsed YAML data
+    let selectedGrade = "3"; // Track selected grade tab
     const backgroundImages = [
       "https://mymodernmet.com/wp/wp-content/uploads/2020/10/cooper-baby-corgi-dogs-8.jpg",
       "https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/9dcfc9b6-5349-52e7-a643-d2af65b338ab/0af98422-8d5d-5204-9f00-361f34eddb23.jpg",
@@ -624,25 +653,26 @@
 
     const renderDicteeList = () => {
       dicteeList.innerHTML = "";
-      if (!dicteeEntries.length) {
+      
+      // Filter dictees by selected grade
+      const filteredEntries = dicteeEntries.filter(entry => entry.grade === selectedGrade);
+      
+      if (!filteredEntries.length) {
         dicteeCount.textContent = "0 dictees found";
-        dicteeList.innerHTML = "<p>No dictees found in this folder yet.</p>";
+        dicteeList.innerHTML = `<p>No Grade ${selectedGrade} dictees found.</p>`;
         return;
       }
 
-      dicteeCount.textContent = `${dicteeEntries.length} dictee${dicteeEntries.length !== 1 ? "s" : ""} found`;
+      dicteeCount.textContent = `${filteredEntries.length} dictee${filteredEntries.length !== 1 ? "s" : ""} found`;
 
-      dicteeEntries.forEach((entry, index) => {
+      filteredEntries.forEach((entry, index) => {
         const button = document.createElement("button");
         button.className = "dictee-button";
         button.type = "button";
         button.dataset.index = index;
         button.innerHTML = `
-          <div>
-            <span>Grade ${entry.grade}</span>
-            <small>Dictee ${entry.number}</small>
-          </div>
-          <div>Start ➜</div>
+          <span style="font-size: 1.2rem; font-weight: 700;">${entry.number}</span>
+          <span style="font-size: 1rem; margin-top: 4px;">➜</span>
         `;
         button.addEventListener("click", () => {
           startDictee(entry).catch((error) => {
@@ -1147,6 +1177,21 @@
         });
       });
     }
+
+    // Handle tab switching
+    const tabButtons = document.querySelectorAll(".tab-button");
+    tabButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        // Remove active class from all tabs
+        tabButtons.forEach(btn => btn.classList.remove("active"));
+        // Add active class to clicked tab
+        button.classList.add("active");
+        // Update selected grade
+        selectedGrade = button.dataset.grade;
+        // Re-render dictee list with filtered entries
+        renderDicteeList();
+      });
+    });
 
     refreshDicteeLibrary();
     setCelebrationImage(getNextImage(), "Spell a word correctly to see a new photo!");

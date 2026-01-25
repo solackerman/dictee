@@ -1,4 +1,245 @@
 3:
+  1:
+    - abri
+    - amour
+    - avion
+    - barbe
+    - bonjour
+    - date
+    - groupe
+    - ligne
+    - maladie
+    - mine
+    - minute
+    - or
+    - pile
+    - poudre
+    - retenir
+    - rire
+    - son
+    - sorte
+    - sucre
+    - tour
+    - vivre
+    - vue
+  2:
+    - court
+    - courte
+    - droit
+    - droite
+    - gentil
+    - gentille
+    - haut
+    - haute
+    - méchant
+    - méchante
+    - mort
+    - morte
+    - ouvert
+    - ouverte
+    - rat
+    - rate
+    - renard
+    - renarde
+    - rond
+    - ronde
+  3:
+    - août
+    - bord
+    - but
+    - doigt
+    - fond
+    - long
+    - nid
+    - part
+    - point
+    - pot
+    - retard
+    - sabot
+    - salut
+    - soie
+    - sourcil
+  4:
+    - cause
+    - cinéma
+    - commencer
+    - congé
+    - conte
+    - continuer
+    - cuisine
+    - écouter
+    - glace
+    - lancer
+    - naissance
+    - occuper
+    - pièce
+    - précipiter
+    - raconter
+    - secouer
+    - surface
+  5:
+    - âge
+    - argent
+    - danger
+    - gagner
+    - garder
+    - genre
+    - gorge
+    - goutte
+    - guerre
+    - langue
+    - magasin
+    - ménage
+    - nuage
+    - protéger
+    - village
+    - voyage
+  6:
+    - choisir
+    - consoler
+    - course
+    - danse
+    - danser
+    - descendre
+    - église
+    - glisser
+    - laisser
+    - passage
+    - poser
+    - posséder
+    - pousser
+    - présenter
+    - réussir
+    - trésor
+    - usine
+    - visite
+    - vitesse
+  7:
+    - aussitôt
+    - déposer
+    - faute
+    - hauteur
+    - nouveau
+    - octobre
+    - offrir
+    - oiseau
+    - poche
+    - promener
+    - promettre
+    - radio
+    - restaurant
+    - sauver
+  8:
+    - appartement
+    - apprendre
+    - attention
+    - avancer
+    - bande
+    - changer
+    - courant
+    - demande
+    - entrer
+    - environ
+    - janvier
+    - lentement
+    - pantalon
+    - pencher
+    - plan
+    - rencontrer
+    - rendre
+    - reprendre
+    - santé
+    - sentier
+    - ventre
+    - viande
+  9:
+    - bain
+    - bien
+    - certain
+    - chagrin
+    - faim
+    - invitation
+    - lendemain
+    - patin
+    - pin
+    - poussin
+    - prochain
+    - rejoindre
+    - rien
+    - sapin
+    - soin
+    - terrain
+  10:
+    - ampoule
+    - champ
+    - comprendre
+    - compter
+    - décembre
+    - embrasser
+    - ensemble
+    - exemple
+    - important
+    - importante
+    - jambe
+    - longtemps
+    - nombre
+    - novembre
+    - ombre
+    - remplir
+    - sembler
+    - septembre
+  11:
+    - alphabet
+    - février
+    - fil
+    - film
+    - fleuve
+    - fol
+    - folle
+    - fou
+    - frapper
+    - photo
+    - préféré
+    - téléphone
+  12:
+    - cacher
+    - camion
+    - coin
+    - costume
+    - couleur
+    - courir
+    - cri
+    - crise
+    - découvrir
+    - manquer
+    - parc
+    - plastique
+    - presque
+    - quel
+    - quelle
+    - quelles
+    - quels
+    - question
+    - spectacle
+  13:
+    - affaire
+    - fer
+    - fermer
+    - herbe
+    - lumière
+    - mer
+    - perdre
+    - permettre
+    - pierre
+    - recherche
+    - rivière
+    - rouler
+    - service
+    - servir
+    - terminer
+    - traverser
+    - verre
+    - verser
   14:
     - aider
     - baigner
@@ -13,7 +254,7 @@
     - lièvre
     - lèvre
     - mètre
-    - paraitre
+    - paraître
     - remettre
     - rêver
     - saison
@@ -42,23 +283,896 @@
     - soirée
     - tirer
     - tuer
-5:
+  16:
+    - assez
+    - avaler
+    - clé
+    - clef
+    - habiter
+    - métier
+    - millier
+    - moitié
+    - oublier
+    - payer
+    - préparer
+    - réaction
+    - remarquer
+    - retrouver
+    - rouler
+    - soigner
+    - soulier
+    - souper
+    - télévision
+    - travailler
+  17:
+    - adulte
+    - amoureuse
+    - amoureux
+    - chasseur
+    - chasseuse
+    - docteur
+    - docteure
+    - femme
+    - lion
+    - lionne
+    - mari
+    - ours
+    - ourse
+    - professeur
+    - professeure
+    - troisième
+  18:
+    - clair
+    - claire
+    - demi
+    - demie
+    - facile
+    - ferme
+    - fixe
+    - gauche
+    - horrible
+    - jeune
+    - mauvais
+    - mauvaise
+    - moyen
+    - moyenne
+    - sec
+    - sèche
+  19:
+    - fier
+    - fière
+    - fraîche
+    - frais
+    - juste
+    - libre
+    - meilleur
+    - meilleure
+    - neuf
+    - neuve
+    - pâle
+    - possible
+    - prochain
+    - prochaine
+    - riche
+    - timide
+    - tranquille
+    - triste
+  20:
+    - autobus
+    - bas
+    - choix
+    - corps
+    - cours
+    - dos
+    - gens
+    - jus
+    - mars
+    - mauvais
+    - mois
+    - poids
+    - prix
+    - repas
+    - vacances
+  21:
+    - agneau
+    - agneaux
+    - bateau
+    - bateaux
+    - bonhomme
+    - bonshommes
+    - brutal
+    - brutaux
+    - brutale
+    - brutales
+    - bureau
+    - bureaux
+    - cadeau
+    - cadeaux
+    - château
+    - châteaux
+    - genou
+    - genoux
+    - hôpital
+    - hôpitaux
+    - joue
+    - joues
+    - journal
+    - journaux
+    - lieu
+    - lieux
+    - métal
+    - métaux
+    - milieu
+    - milieux
+    - morceau
+    - morceaux
+    - museau
+    - museaux
+    - ruisseau
+    - ruisseaux
+    - trou
+    - trous
+  22:
+    - acheter
+    - approcher
+    - bouchon
+    - branche
+    - chacun
+    - chacune
+    - chant
+    - chasse
+    - chasser
+    - chiffre
+    - coucher
+    - machine
+    - marché
+    - marcher
+    - toucher
+  23:
+    - avril
+    - bois
+    - bonheur
+    - ensuite
+    - froid
+    - juillet
+    - juin
+    - malheur
+    - minuit
+    - partie
+    - poil
+    - pourquoi
+    - rayon
+    - suite
+    - voisin
+    - voisine
+    - voiture
+    - zoo
+  24:
+    - allure
+    - boire
+    - bonsoir
+    - croire
+    - dur
+    - dure
+    - mourir
+    - mur
+    - murmure
+    - pleuvoir
+    - recevoir
+    - revenir
+    - sentir
+    - souvenir
+    - trottoir
+    - valoir
+  25:
+    - balle
+    - ballon
+    - battre
+    - botte
+    - bouteille
+    - meilleur
+    - meilleure
+    - mille
+    - millier
+    - million
+    - nourrir
+    - nourriture
+    - réveiller
+    - salle
+    - taille
+  26:
+    - après-midi
+    - aujourd'hui
+    - avant-midi
+    - bâton
+    - boîte
+    - grand-maman
+    - grand-mère
+    - grand-papa
+    - grand-père
+    - lorsqu'
+    - peut-être
+    - quelques-unes
+    - quelques-uns
+    - quelqu'un
+    - quelqu'une
+  27:
+    - bientôt
+    - car
+    - combien
+    - contre
+    - d'abord
+    - dedans
+    - dehors
+    - demain
+    - dès que
+    - mal
+    - plusieurs
+    - sans que
+6:
+  1:
+    - un angle
+    - s'élancer
+    - un pansement
+    - une balance
+    - franchir
+    - une planche
+    - une banlieue
+    - une garantie
+    - un sandwich
+    - une banque
+    - grandir
+    - une séance
+    - brillant
+    - brillante
+    - une indépendance
+    - une tranche
+    - une croyance
+    - intéressant
+    - intéressante
+    - déranger
+    - un mandat
+    - un divan
+    - une marchandise
+  2:
+    - un aliment
+    - fréquenter
+    - un sifflement
+    - un déplacement
+    - intense
+    - ustensile
+    - encourager
+    - mentir
+    - un vendeur
+    - une vendeuse
+    - enfoncer
+    - un paiement
+    - venger
+    - entreprendre
+    - un parlement
+    - une vente
+    - environ
+    - un remerciement
+    - un équipement
+    - repentir
+    - une étendue
+    - une revendication
+  3:
+    - un ambassadeur
+    - une ambassadrice
+    - un camp
+    - un impôt
+    - une sympathie
+    - un jambon
+    - sympathique
+    - combattre
+    - un membre
+    - température
+    - un compliment
+    - un pompier
+    - une pompière
+    - trembler
+    - un comportement
+    - un rassemblement
+    - un emploi
+    - une récompense
+    - un emprunt
+    - une ressemblance
+    - une importation
+    - semblable
+  4:
+    - absent
+    - absente
+    - évident
+    - évidente
+    - principal
+    - principale
+    - âgé
+    - âgée
+    - excellent
+    - excellente
+    - puissant
+    - puissante
+    - artisan
+    - artisane
+    - expert
+    - experte
+    - second
+    - seconde
+    - candidat
+    - candidate
+    - géant
+    - géante
+    - sergent
+    - sergente
+    - caporal
+    - caporale
+    - glacé
+    - glacée
+    - sourd
+    - sourde
+    - distrait
+    - distraite
+    - humain
+    - humaine
+    - spécial
+    - spéciale
+    - doré
+    - dorée
+    - idiot
+    - idiote
+    - étroit
+    - étroite
+    - passé
+    - passée
+  5:
+    - un adulte
+    - une adulte
+    - un locataire
+    - une locataire
+    - agréable
+    - un artiste
+    - une artiste
+    - un photographe
+    - une photographe
+    - comique
+    - un aveugle
+    - une aveugle
+    - un propriétaire
+    - une propriétaire
+    - formidable
+    - un brave
+    - une brave
+    - un responsable
+    - une responsable
+    - fragile
+    - un détective
+    - une détective
+    - un scientifique
+    - une scientifique
+    - scolaire
+    - un enfant
+    - une enfant
+    - un secrétaire
+    - une secrétaire
+    - sévère
+    - un fonctionnaire
+    - une fonctionnaire
+    - un spécialiste
+    - une spécialiste
+    - souple
+    - un journaliste
+    - une journaliste
+    - un touriste
+    - une touriste
+    - véritable
+  6:
+    - musicien
+    - musicienne
+    - berger
+    - bergère
+    - jumeau
+    - jumelle
+    - nul
+    - nulle
+    - chauffeur
+    - chauffeuse
+    - menteur
+    - menteuse
+    - professionnel
+    - professionnelle
+    - conducteur
+    - conductrice
+    - nageur
+    - nageuse
+    - technicien
+    - technicienne
+    - cordonnier
+    - cordonnière
+    - portier
+    - portière
+    - acheteur
+    - acheteuse
+    - courageux
+    - courageuse
+    - silencieux
+    - silencieuse
+    - acteur
+    - actrice
+    - danseur
+    - danseuse
+    - sportif
+    - sportive
+    - amateur
+    - amatrice
+    - écolier
+    - écolière
+    - traducteur
+    - traductrice
+    - auditeur
+    - auditrice
+    - électeur
+    - électrice
+    - travailleur
+    - travailleuse
+  7:
+    - ou
+    - ous
+    - ail
+    - ails
+    - au
+    - aux
+    - eau
+    - eaux
+    - eu
+    - eux
+    - al
+    - aux
+    - sous
+    - bijoux
+    - cailloux
+    - choux
+    - genoux
+    - hiboux
+    - joujoux
+    - poux
+  8:
+    - afin que
+    - dont
+    - précisément
+    - autrefois
+    - droit
+    - rarement
+    - autrement
+    - entièrement
+    - soit
+    - ceci
+    - envers
+    - tantôt
+    - certainement
+    - extrêmement
+    - tranquillement
+    - c'est-à-dire
+    - là-haut
+    - uniquement
+    - clairement
+    - légèrement
+    - vivement
+    - d'accord
+    - particulièrement
   9:
     - un brin
     - une infirmité
     - un syndicat
     - une épingle
     - une installation
-    - vaine
     - convaincre
     - un instinct
     - une industrie
     - un gamin
+    - une gamine
     - un intervalle
     - un saint
+    - une sainte
     - incapable
     - un inventeur
+    - une inventrice
     - une indication
     - un inconvénient
     - mince
     - orphelin
+    - orpheline
+  10:
+    - accuser
+    - une liaison
+    - un réseau
+    - anglais
+    - anglaise
+    - un loisir
+    - une supposition
+    - une blouse
+    - une opposition
+    - une utilisation
+    - la confusion
+    - une précision
+    - utiliser
+    - croiser
+    - un rasoir
+    - un gaz
+    - une division
+    - une réalisation
+    - un zèle
+    - excuser
+    - réaliser
+    - une zone
+    - une explosion
+    - une représentation
+  11:
+    - abandonner
+    - un monument
+    - un auditeur
+    - une clôture
+    - un oreiller
+    - une sauce
+    - un contrôle
+    - une pommade
+    - un carreau
+    - un comité
+    - un projectile
+    - un marteau
+    - une croyance
+    - une récolte
+    - un plateau
+    - endormir
+    - un torrent
+    - un seau
+    - un laboratoire
+    - aucun
+    - aucune
+    - un taureau
+    - un moment
+    - une audace
+    - un tonneau
+  12:
+    - un chiffon
+    - un fossé
+    - un tarif
+    - une coiffure
+    - la foudre
+    - vérifier
+    - un confort
+    - frotter
+    - siffler
+    - une étoffe
+    - fuir
+    - un éléphant
+    - une éléphante
+    - étouffer
+    - le futur
+    - la géographie
+    - un fonctionnement
+    - une profession
+    - une pharmacie
+    - fondre
+    - un refus
+    - un photographe
+  13:
+    - accepter
+    - demeurer
+    - noyer
+    - accompagner
+    - deviner
+    - promener
+    - allumer
+    - élever
+    - réparer
+    - amener
+    - emmener
+    - situer
+    - appuyer
+    - libérer
+    - soulever
+    - céder
+    - livrer
+    - taper
+    - conserver
+    - murmurer
+  14:
+    - la durée
+    - une extrémité
+    - la solidarité
+    - une matinée
+    - la facilité
+    - une spécialité
+    - une poignée
+    - la lâcheté
+    - la sûreté
+    - une actualité
+    - une minorité
+    - la saleté
+    - une antiquité
+    - une nationalité
+    - un clocher
+    - une communauté
+    - la propreté
+    - un évier
+    - une éternité
+    - la pureté
+  15:
+    - cracher
+    - un balcon
+    - un dictionnaire
+    - creux
+    - un colis
+    - une structure
+    - décrire
+    - une courbe
+    - une barque
+    - un carré
+    - une cuisse
+    - fabriquer
+    - un canal
+    - des canaux
+    - une écurie
+    - se moquer
+    - un cavalier
+    - une excursion
+    - un orchestre
+    - un local
+    - des locaux
+    - une sculpture
+    - une piqûre
+    - un alcool
+    - une cliente
+    - la psychologie
+  16:
+    - un salaire
+    - une consigne
+    - un pistolet
+    - le sel
+    - une dispute
+    - risquer
+    - une selle
+    - une distraction
+    - le tourisme
+    - une semelle
+    - une estime
+    - vaste
+    - une soustraction
+    - une illustration
+    - une veste
+    - surveiller
+    - un mécanisme
+    - un veston
+    - un astre
+    - un moustique
+    - une vis
+    - une bourse
+    - un pasteur
+  17:
+    - une boisson
+    - un caprice
+    - un concert
+    - un établissement
+    - une conférence
+    - déplacer
+    - une lessive
+    - un divorce
+    - une façade
+    - une pâtisserie
+    - un domicile
+    - français
+    - française
+    - une paresse
+    - un édifice
+    - une prononciation
+    - une ressource
+    - un pouce
+    - un soupçon
+    - un tissage
+    - une centaine
+    - une absence
+    - une abondance
+    - un cerf
+    - une cire
+  18:
+    - une addition
+    - une diminution
+    - une précaution
+    - une alimentation
+    - une élection
+    - une réduction
+    - la consommation
+    - une formation
+    - une réparation
+    - une constitution
+    - une imitation
+    - une révolution
+    - une construction
+    - une inondation
+    - une station
+    - une création
+    - une multiplication
+    - une traduction
+    - une décoration
+    - une population
+    - un stationnement
+  19:
+    - élégance
+    - grasse
+    - gronder
+    - une catégorie
+    - un grenier
+    - guérir
+    - le golfe
+    - une griffe
+    - une vague
+    - gonfler
+    - la grosseur
+    - la vigueur
+    - goûter
+    - une glace
+    - un guide
+  20:
+    - un apprentissage
+    - le partage
+    - un engagement
+    - un barrage
+    - un potager
+    - gémir
+    - un élevage
+    - un pourcentage
+    - la largeur
+    - un étalage
+    - un rivage
+    - un réfrigérateur
+    - le feuillage
+    - un stage
+    - une chirurgie
+    - un garage
+    - une tige
+    - une hygiène
+    - un naufrage
+    - une agence
+    - la logique
+    - un nettoyage
+    - un changement
+    - rougir
+  21:
+    - le tabac
+    - le placard
+    - un mât
+    - le deuil
+    - le sirop
+    - un mont
+    - gras
+    - roux
+    - l'odorat
+    - le parcours
+    - un achat
+    - un paquebot
+    - le puits
+    - le client
+    - un passeport
+    - un accord
+    - un égout
+    - un sport
+  22:
+    - une chimie
+    - un reproche
+    - lâche
+    - une tragédie
+    - un rhume
+    - le luxe
+    - un beurre
+    - un stade
+    - une marmite
+    - un génie
+    - une barre
+    - le mérite
+    - le marbre
+    - une brochure
+    - une panne
+    - un parachute
+    - une brûlure
+    - un poêle
+    - un pétrole
+    - humide
+  23:
+    - admettre
+    - un dessert
+    - la modestie
+    - une assiette
+    - dessiner
+    - une moyenne
+    - une averse
+    - effacer
+    - une ouverture
+    - avertir
+    - l'électricité
+    - une politesse
+    - blesser
+    - émettre
+    - une vieillesse
+    - une charrette
+    - examiner
+    - beige
+    - une délicatesse
+    - une fermeture
+    - un chêne
+    - muet
+    - prêter
+    - un prêtre
+    - un robinet
+    - un sifflet
+  24:
+    - aimable
+    - un itinéraire
+    - une cavalière
+    - alimentaire
+    - une librairie
+    - célèbre
+    - une dizaine
+    - un marais
+    - une clientèle
+    - une épaisseur
+    - un minerai
+    - un congrès
+    - la graisse
+    - parfait
+    - parfaite
+    - une nièce
+    - une grammaire
+    - taire
+    - un règne
+    - une haie
+    - un vocabulaire
+    - la sève
+    - un horaire
+    - une artère
+  25:
+    - j'agitais
+    - tu nageais
+    - il supportait
+    - j'ordonnais
+    - tu séchais
+    - ils attiraient
+    - je rassurais
+    - tu soufflais
+    - ils attaquaient
+    - je reculais
+    - il entourait
+    - ils baissaient
+    - je sonnais
+    - il se réfugiait
+    - ils plongeaient
+    - tu accrochais
+    - il remerciait
+    - ils saluaient
+    - tu dressais
+    - il séparait
+    - ils grondaient
+  26:
+    - une aptitude
+    - une lenteur
+    - un poumon
+    - une armoire
+    - une littérature
+    - un pourboire
+    - une blancheur
+    - une mâchoire
+    - prévenir
+    - la bravoure
+    - obtenir
+    - prévoir
+    - le charbon
+    - un oubli
+    - un torchon
+    - une étape
+    - une ouïe
+    - un vallon
+    - une hache
+    - un pâté
+    - une villa
+    - une honte
+    - le péril
