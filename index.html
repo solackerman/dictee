@@ -166,6 +166,27 @@
       font-size: 1.05rem;
     }
 
+    .answer-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .answer-textarea {
+      width: 100%;
+      max-width: 100%;
+      min-height: 7.5rem;
+      resize: vertical;
+      line-height: 1.45;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .answer-actions {
+      justify-content: flex-end;
+    }
+
     .feedback {
       font-weight: 600;
     }
@@ -194,7 +215,13 @@
       border: 1px solid #e5e7eb;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .result-card > div:first-child {
+      min-width: 0;
+      word-break: break-word;
     }
 
     .result-card span {
@@ -244,7 +271,7 @@
 
     .dictee-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
       gap: 8px;
       margin-top: 12px;
     }
@@ -261,6 +288,13 @@
       text-align: center;
       width: 100%;
       min-height: 80px;
+    }
+
+    .dictee-button .dictee-label {
+      font-size: clamp(0.8rem, 2.4vw, 1.15rem);
+      font-weight: 700;
+      line-height: 1.25;
+      word-break: break-word;
     }
 
 
@@ -375,12 +409,21 @@
               <span class="pill" id="score-pill">0 correct</span>
             </div>
             <div class="row">
-              <button class="secondary" id="speak-button">🔊 Sound out word</button>
+              <button class="secondary" id="speak-button">🔊 Sound it out</button>
               <audio id="tts-audio"></audio>
             </div>
-            <div class="row">
-              <input id="answer-input" class="input-field" type="text" placeholder="Type the word" autocomplete="off" />
-              <button class="primary" id="next-button">Check & Next ➜</button>
+            <div class="answer-block">
+              <textarea
+                id="answer-input"
+                class="input-field answer-textarea"
+                rows="5"
+                placeholder="Type the word or sentence (Shift+Enter for a new line)"
+                spellcheck="false"
+                autocomplete="off"
+              ></textarea>
+              <div class="row answer-actions">
+                <button class="primary" id="next-button">Check & Next ➜</button>
+              </div>
             </div>
             <div class="feedback" id="feedback"></div>
           </div>
@@ -501,7 +544,44 @@
       value
         .trim()
         .toLowerCase()
+        .replace(/\s+/g, " ")
         .normalize("NFC");
+
+    /** Web Speech `rate` is 0.1–10 (1 = default). Fallback audio uses the same factor via `playbackRate`. */
+    const DICTEE_SPEECH_RATE = 0.48;
+
+    /** Sort keys: plain numeric dictee numbers first, then French date labels, then other strings. */
+    const FRENCH_MONTH_INDEX = {
+      janvier: 0,
+      février: 1,
+      mars: 2,
+      avril: 3,
+      mai: 4,
+      juin: 5,
+      juillet: 6,
+      août: 7,
+      septembre: 8,
+      octobre: 9,
+      novembre: 10,
+      décembre: 11
+    };
+
+    const dicteeLabelSortMeta = (key) => {
+      const s = String(key).trim();
+      if (/^\d+$/.test(s)) {
+        return { kind: "n", value: Number.parseInt(s, 10) };
+      }
+      const m = s.match(/^(1er|\d{1,2})\s+([a-zàâäéèêëïîôùûüç]+)\s+(\d{4})$/i);
+      if (m) {
+        const day = m[1].toLowerCase() === "1er" ? 1 : Number.parseInt(m[1], 10);
+        const month = FRENCH_MONTH_INDEX[m[2].toLowerCase()];
+        if (month !== undefined) {
+          const year = Number.parseInt(m[3], 10);
+          return { kind: "d", value: new Date(year, month, day).getTime() };
+        }
+      }
+      return { kind: "s", value: s };
+    };
 
     const parseWords = (text) => {
       return text
@@ -641,12 +721,19 @@
       if (a.grade !== b.grade) {
         return a.grade.localeCompare(b.grade, undefined, { numeric: true });
       }
-      const numberA = Number.parseInt(a.number, 10);
-      const numberB = Number.parseInt(b.number, 10);
-      if (!Number.isNaN(numberA) && !Number.isNaN(numberB) && numberA !== numberB) {
-        return numberA - numberB;
+      const rank = { n: 0, d: 1, s: 2 };
+      const sa = dicteeLabelSortMeta(a.number);
+      const sb = dicteeLabelSortMeta(b.number);
+      if (rank[sa.kind] !== rank[sb.kind]) {
+        return rank[sa.kind] - rank[sb.kind];
       }
-      return a.number.localeCompare(b.number, undefined, { numeric: true });
+      if (sa.kind === "n") {
+        return sa.value - sb.value;
+      }
+      if (sa.kind === "d") {
+        return sa.value - sb.value;
+      }
+      return a.number.localeCompare(b.number, "fr", { numeric: true });
     };
 
     const renderDicteeList = () => {
@@ -669,7 +756,7 @@
         button.type = "button";
         button.dataset.index = index;
         button.innerHTML = `
-          <span style="font-size: 1.2rem; font-weight: 700;">${entry.number}</span>
+          <span class="dictee-label">${String(entry.number).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")}</span>
           <span style="font-size: 1rem; margin-top: 4px;">➜</span>
         `;
         button.addEventListener("click", () => {
@@ -773,7 +860,7 @@
         setTimeout(() => {
           const utterance = new SpeechSynthesisUtterance(word);
           utterance.lang = 'fr-FR'; // French
-          utterance.rate = 0.9; // Slightly slower for clarity
+          utterance.rate = DICTEE_SPEECH_RATE;
           utterance.voice = frenchVoice; // Explicitly set French voice
           
           // #region agent log
@@ -853,6 +940,7 @@
       fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:720',message:'Setting audio src',data:{url:url,urlLength:url.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});console.log('[DEBUG] Setting audio src',url);
       // #endregion
       ttsAudio.src = url;
+      ttsAudio.playbackRate = DICTEE_SPEECH_RATE;
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:723',message:'Audio src set',data:{src:ttsAudio.src,readyStateBefore:ttsAudio.readyState},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});console.log('[DEBUG] Audio src set',{src:ttsAudio.src,readyState:ttsAudio.readyState});
       // #endregion
@@ -873,6 +961,7 @@
       
       // Fix: Wait for audio to load before playing, and handle play() promise properly
       const playWhenReady = () => {
+        ttsAudio.playbackRate = DICTEE_SPEECH_RATE;
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/f1f9cec7-1c2c-43ca-ac15-28bb69c5a2ee',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:737',message:'Attempting to play audio',data:{readyState:ttsAudio.readyState,currentSrc:ttsAudio.currentSrc},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});console.log('[DEBUG] Attempting to play audio',{readyState:ttsAudio.readyState,currentSrc:ttsAudio.currentSrc});
         // #endregion
@@ -1113,8 +1202,9 @@
       speakWord(words[currentIndex]);
     });
 
-    answerInput.addEventListener("keypress", (event) => {
-      if (event.key === "Enter") {
+    answerInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
         nextButton.click();
       }
     });
