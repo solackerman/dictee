@@ -537,6 +537,662 @@
     - mal
     - plusieurs
     - sans que
+4:
+  1:
+    - bol
+    - bon
+    - boule
+    - bulle
+    - cabane
+    - doute
+    - habitude
+    - humeur
+    - la
+    - la leur
+    - le leur
+    - larme
+    - laver
+    - le
+    - la mode
+    - le mode
+    - les leurs
+    - métro
+    - meuble
+    - ouest
+    - pardon
+    - patiner
+    - plume
+    - pupitre
+    - retour
+    - tour
+  2:
+    - accord
+    - début
+    - désert
+    - différent
+    - fort
+    - froid
+    - gout
+    - goût
+    - grand
+    - plat
+    - prêt
+    - profond
+    - soldat
+    - suivant
+    - tout
+    - vivant
+  3:
+    - accident
+    - bond
+    - cent
+    - chocolat
+    - debout
+    - endroit
+    - front
+    - lait
+    - mouvement
+    - nord
+    - pont
+    - port
+    - quart
+    - roue
+    - sang
+    - sort
+    - toit
+  4:
+    - annoncer
+    - bicyclette
+    - ça
+    - carton
+    - casser
+    - ce
+    - corde
+    - coupe
+    - créer
+    - décider
+    - déclarer
+    - douceur
+    - escalier
+    - espace
+    - façon
+    - placer
+    - seconde
+  5:
+    - agir
+    - agriculture
+    - ange
+    - arranger
+    - bouger
+    - cage
+    - courage
+    - dragon
+    - également
+    - étage
+    - fatiguer
+    - geste
+    - grave
+    - grotte
+    - imagination
+    - magie
+    - malgré
+    - mariage
+    - mélange
+    - obliger
+    - ouvrage
+    - regard
+  6:
+    - assurer
+    - esprit
+    - exister
+    - hasard
+    - hésiter
+    - mission
+    - observer
+    - occasion
+    - prison
+    - racisme
+    - réponse
+    - sable
+    - salon
+    - scène
+    - signe
+    - sinon
+    - situation
+    - sol
+    - solution
+    - sortie
+    - soupe
+    - soupirer
+    - statue
+    - sud
+    - visiter
+  7:
+    - aube
+    - automobile
+    - autre
+    - côte
+    - dollar
+    - émotion
+    - épaule
+    - horizon
+    - horreur
+    - kilomètre
+    - nommer
+    - numéro
+    - odeur
+    - opération
+    - oser
+    - parole
+    - piano
+    - poste
+    - problème
+    - promenade
+    - reposer
+    - rôle
+    - royaume
+    - sauter
+    - tôt
+  8:
+    - autant
+    - avance
+    - centimètre
+    - centre
+    - confiance
+    - continent
+    - distance
+    - durant
+    - entrée
+    - envie
+    - envoyer
+    - expérience
+    - immense
+    - lance
+    - pensée
+    - plancher
+    - pourtant
+    - présence
+    - rentrer
+    - représenter
+    - ruban
+    - silence
+    - surprendre
+    - transformer
+    - vendre
+  9:
+    - ainsi
+    - besoin
+    - bien
+    - fin
+    - fin de semaine
+    - insister
+    - instant
+    - inventer
+    - inviter
+    - le mien
+    - la mienne
+    - le sien
+    - la sienne
+    - le tien
+    - la tienne
+    - les miens
+    - les miennes
+    - les siens
+    - les siennes
+    - les tiens
+    - les tiennes
+    - médecin
+    - parrain
+    - plein de
+    - pointe
+    - refrain
+    - singe
+    - soudain
+    - soudaine
+    - vin
+  10:
+    - compagnie
+    - complètement
+    - compte
+    - de temps en temps
+    - empêcher
+    - emporter
+    - ensemble
+    - framboise
+    - impossible
+    - impression
+    - lampe
+    - nombreuse
+    - nombreux
+    - ressembler
+    - simple
+    - simplement
+    - sombre
+    - vampire
+  11:
+    - catastrophe
+    - chef
+    - défi
+    - difficile
+    - difficulté
+    - fillette
+    - force
+    - forme
+    - foule
+    - fumer
+    - magnifique
+    - phoque
+    - sauf
+    - profiter
+    - souffle
+  12:
+    - bec
+    - bibliothèque
+    - cirque
+    - couper
+    - direction
+    - époque
+    - équipe
+    - expliquer
+    - lac
+    - lequel
+    - laquelle
+    - marquer
+    - quartier
+    - quatrième
+    - quitter
+    - réplique
+    - ski
+    - unique
+  13:
+    - à travers
+    - arrière
+    - colère
+    - contraire
+    - cuiller
+    - cuillère
+    - derrière
+    - éclair
+    - éclairer
+    - en arrière
+    - fermé
+    - fermée
+    - hier
+    - matière
+    - misère
+    - mystère
+    - plaire
+    - poussière
+    - refaire
+    - serrer
+    - soccer
+    - terrible
+    - univers
+  14:
+    - aide
+    - bleuet
+    - crayon
+    - désormais
+    - effet
+    - espèce
+    - essayer
+    - est
+    - être
+    - laine
+    - les
+    - lesquels
+    - lesquelles
+    - lunette
+    - message
+    - messe
+    - objet
+    - planète
+    - poème
+    - prêt
+    - prête
+    - raison
+    - reste
+    - rêve
+    - sommet
+    - système
+    - tresse
+  15:
+    - ajouter
+    - améliorer
+    - amitié
+    - arrivée
+    - déjeuner
+    - état
+    - étudier
+    - hockey
+    - imaginer
+    - prier
+    - ramener
+    - réalité
+    - rendez-vous
+    - respirer
+    - vérité
+  16:
+    - adorer
+    - départ
+    - détester
+    - éclater
+    - événement
+    - évènement
+    - éviter
+    - fêter
+    - fumée
+    - jurer
+    - nez
+    - pardonner
+    - passé
+    - pleurer
+    - poney
+    - répéter
+    - "s'ennuyer"
+  17:
+    - héros
+    - héroïne
+    - adulte
+    - amoureux
+    - amoureuse
+    - boulanger
+    - boulangère
+    - capitaine
+    - champion
+    - championne
+    - conducteur
+    - conductrice
+    - détective
+    - directeur
+    - directrice
+    - docteur
+    - docteure
+    - domestique
+    - garçon
+    - fille
+    - garde
+    - gardien
+    - gardienne
+    - jongleur
+    - jongleuse
+    - joueur
+    - joueuse
+    - maître
+    - maîtresse
+    - prêtre
+    - prêtresse
+    - professeur
+    - professeure
+    - sorcier
+    - sorcière
+  18:
+    - bizarre
+    - capable
+    - deuxième
+    - double
+    - drôle
+    - effroyable
+    - électrique
+    - énorme
+    - étrange
+    - extraordinaire
+    - incroyable
+    - intrépide
+    - magique
+    - même
+    - minuscule
+    - ordinaire
+    - pire
+    - propre
+    - utile
+    - vide
+  19:
+    - affreux
+    - affreuse
+    - amusant
+    - amusante
+    - ancien
+    - ancienne
+    - aucun
+    - aucune
+    - bas
+    - basse
+    - chanceux
+    - chanceuse
+    - content
+    - contente
+    - creux
+    - creuse
+    - curieux
+    - curieuse
+    - dangereux
+    - dangereuse
+    - délicieux
+    - délicieuse
+    - fier
+    - fière
+    - fou
+    - folle
+    - intérieur
+    - intérieure
+    - léger
+    - légère
+    - malheureux
+    - malheureuse
+    - merveilleux
+    - merveilleuse
+    - net
+    - nette
+    - neuf
+    - neuve
+    - normal
+    - normale
+    - nouveau
+    - nouvelle
+    - nu
+    - nue
+    - nul
+    - nulle
+    - préféré
+    - préférée
+    - secret
+    - secrète
+    - sportif
+    - sportive
+  20:
+    - autobus
+    - cas
+    - choix
+    - croix
+    - dessous
+    - dessus
+    - joyeux
+    - paix
+    - pays
+    - poids
+    - propos
+    - secours
+    - sens
+    - tas
+    - temps
+    - vacances
+  21:
+    - anneau
+    - anneaux
+    - aucun
+    - aucuns
+    - bleu
+    - bleus
+    - caillou
+    - cailloux
+    - dieu
+    - dieux
+    - gâteau
+    - gâteaux
+    - gruau
+    - gruaux
+    - hôpital
+    - hôpitaux
+    - jeu
+    - jeux
+    - journal
+    - journaux
+    - lieu
+    - lieux
+    - normal
+    - normaux
+    - pneu
+    - pneus
+    - rideau
+    - rideaux
+    - travail
+    - travaux
+  22:
+    - arracher
+    - attacher
+    - cachette
+    - chaleur
+    - chance
+    - chapitre
+    - chaussure
+    - chuchoter
+    - échapper
+    - échelle
+    - pêche
+    - proche
+    - quelque chose
+    - rechercher
+    - réfléchir
+  23:
+    - biscuit
+    - conduire
+    - construire
+    - détruire
+    - éloigner
+    - endroit
+    - huile
+    - mademoiselle
+    - mesdemoiselles
+    - poitrine
+    - poursuivre
+    - puisque
+    - quelquefois
+    - quoi
+    - soi
+    - toilette
+    - toutefois
+  24:
+    - apercevoir
+    - assoir
+    - asseoir
+    - aventure
+    - contenir
+    - élire
+    - espoir
+    - hurler
+    - partir
+    - pouvoir
+    - pur
+    - pure
+    - repartir
+    - revoir
+    - sourire
+    - se souvenir
+    - suffire
+    - sûr
+    - sûre
+    - surement
+    - sûrement
+    - surprise
+    - tenir
+  25:
+    - bottine
+    - brouillard
+    - gramme
+    - marraine
+    - médaille
+    - paille
+    - papillon
+    - presser
+    - ramasser
+    - rapporter
+    - recommencer
+    - repasser
+    - ruelle
+    - sommeil
+    - veille
+  26:
+    - apparaitre
+    - apparaître
+    - avant-hier
+    - celle-ci
+    - celle-là
+    - celles-ci
+    - celles-là
+    - celui-ci
+    - celui-là
+    - ceux-ci
+    - ceux-là
+    - connaitre
+    - connaître
+    - diner
+    - dîner
+    - disparaitre
+    - disparaître
+    - hâte
+    - héroïne
+    - ile
+    - île
+    - "jusqu'à"
+    - "jusqu'au"
+    - "jusqu'aux"
+    - là-bas
+    - naitre
+    - naître
+    - Noël
+    - plutôt
+    - rendez-vous
+    - théâtre
+  27:
+    - cependant
+    - de bonne heure
+    - doucement
+    - en avant
+    - en bas
+    - en haut
+    - exactement
+    - facilement
+    - finalement
+    - heureusement
+    - la plupart
+    - lors de
+    - malheureusement
+    - où
+    - rapidement
+    - selon
+    - seulement
+    - tandis que
+    - tout à coup
+  28:
+    - à droite
+    - à gauche
+    - à peu près
+    - absolument
+    - afin de
+    - ailleurs
+    - au lieu de
+    - au milieu de
+    - au moins
+    - auprès de
+    - cela
+    - en train de
+    - évidemment
+    - facilement
+    - justement
+    - la plupart des
+    - parfaitement
+    - parmi
 6:
   1:
     - un angle
